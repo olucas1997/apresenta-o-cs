@@ -1,0 +1,105 @@
+================================================================================
+  TESTE DE DADOS - VERIFICAÇÃO RÁPIDA
+================================================================================
+
+📊 DADOS ESPERADOS (conforme você informou):
+
+  Total de Chamados: 54 (entre junho e julho)
+  Resolvidos: 51
+  Em Atendimento: 3
+  
+  Por Equipe:
+    - Suporte: 14 chamados
+    - CS: 40 atendimentos
+  
+  Por Tipo:
+    - Ligações: ?
+    - Reuniões: ?
+    - Sistema: ?
+    - Equipamento: ?
+
+================================================================================
+
+🔍 COMO VERIFICAR OS DADOS:
+
+1. Abra o arquivo: debug.html
+   → Clique com botão direito em debug.html
+   → Selecione "Abrir com" → Seu navegador
+
+2. Clique em "📊 Carregar e Analisar"
+
+3. Você verá:
+   ✓ Total de chamados carregados
+   ✓ Contagem por status
+   ✓ Contagem por equipe
+   ✓ Contagem por tipo
+   ✓ Contagem por sistema
+   ✓ Contagem por empresa
+   ✓ Contagem por estado
+   ✓ Primeiros 10 registros
+
+================================================================================
+
+✅ CHECKLIST DE VALIDAÇÃO:
+
+Após abrir debug.html, verifique:
+
+  ☐ Total de Chamados = 64 (ou próximo)
+  ☐ Resolvidos = 51
+  ☐ Em Atendimento = 2 ou 3
+  ☐ Suporte = 14
+  ☐ CS = 40+
+  ☐ Ligações = contagem correta
+  ☐ Reuniões = contagem correta
+  ☐ Sistema = contagem correta
+  ☐ Equipamento = contagem correta
+
+================================================================================
+
+📝 ANÁLISE DO ARQUIVO CSV:
+
+Linhas 2-38: Chamados técnicos (Suporte)
+Linhas 39-62: Ligações (CS)
+Linhas 63-64: Reuniões (CS)
+
+Estrutura:
+  - Coluna "Tipo": Sistema, Equipamento, ligação, reunião
+  - Coluna "Equipe": suporte, CS
+  - Coluna "Status": Resolvido, Em Atendimento
+  - Coluna "Data de fechamento": vazia = aberto, preenchida = resolvido
+
+================================================================================
+
+🔧 SE OS DADOS NÃO BATEREM:
+
+1. Verifique se o arquivo está sendo lido corretamente
+2. Abra o console do navegador (F12)
+3. Procure por mensagens de erro
+4. Verifique se as colunas têm os nomes exatos
+
+Nomes de colunas esperados:
+  - Protocolo
+  - Status
+  - Tipo
+  - Cliente
+  - Empresa do cliente
+  - Técnico responsável
+  - Sistema(s)
+  - Cidade
+  - Estado
+  - Data de abertura
+  - Data de fechamento
+  - Equipe (ou Equpe)
+
+================================================================================
+
+🎯 PRÓXIMO PASSO:
+
+Após validar os dados em debug.html:
+
+1. Abra test.html
+2. Clique em "Carregar Arquivo CSV"
+3. Selecione: chamados_todos_inicio_a_2026-07-02.csv
+4. Verifique se os KPIs estão corretos
+
+================================================================================

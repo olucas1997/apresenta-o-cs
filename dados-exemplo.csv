@@ -1,0 +1,41 @@
+Protocolo,Status,Tipo,Cliente,Empresa do cliente,Resumo,Descrição,Técnico responsável,Equipamento,Sistema(s),Número de Série,Cidade,Estado,Data de abertura,Data de fechamento,Equpe
+INFANT-001,Aberto,Suporte,João Silva,Politec,Problema de conexão,Cliente relata problema de conexão intermitente,Carlos Santos,Router,Windows Server,SN123456,São Paulo,SP,2024-01-15,,suporte
+INFANT-002,Fechado,Atendimento,Maria Santos,TechCorp,Reunião de alinhamento,Reunião com cliente para alinhamento de demandas,Ana Costa,N/A,N/A,N/A,Rio de Janeiro,RJ,2024-01-10,2024-01-10,CS
+INFANT-003,Aberto,Suporte,Pedro Costa,Politec,Erro de sistema,Sistema apresenta erro ao iniciar,Carlos Santos,Servidor,Linux,SN789012,Belo Horizonte,MG,2024-01-14,,suporte
+INFANT-004,Fechado,Ligação,Ana Paula,TechCorp,Suporte técnico,Ligação para suporte técnico,Bruno Silva,N/A,N/A,N/A,São Paulo,SP,2024-01-12,2024-01-12,CS
+INFANT-005,Aberto,Suporte,Lucas Ferreira,Inovate,Falha de hardware,Hardware apresenta falha intermitente,Diego Santos,Placa mãe,Windows Server,SN345678,Curitiba,PR,2024-01-13,,suporte
+INFANT-006,Fechado,Reunião,Fernanda Oliveira,Politec,Planejamento estratégico,Reunião para planejamento estratégico,Mariana Costa,N/A,N/A,N/A,Brasília,DF,2024-01-11,2024-01-11,CS
+INFANT-007,Aberto,Suporte,Roberto Alves,TechCorp,Problema de rede,Rede apresenta latência alta,Eduardo Silva,Switch,Cisco,SN567890,Salvador,BA,2024-01-14,,suporte
+INFANT-008,Fechado,Acompanhamento,Camila Rocha,Inovate,Acompanhamento de projeto,Acompanhamento de projeto em andamento,Felipe Costa,N/A,N/A,N/A,Recife,PE,2024-01-09,2024-01-09,CS
+INFANT-009,Aberto,Suporte,Gustavo Martins,Politec,Erro de banco de dados,Banco de dados apresenta erro de sincronização,Gabriel Santos,Servidor,PostgreSQL,SN901234,Manaus,AM,2024-01-13,,suporte
+INFANT-010,Fechado,Ligação,Helena Dias,TechCorp,Suporte preventivo,Ligação para suporte preventivo,Isabela Costa,N/A,N/A,N/A,Fortaleza,CE,2024-01-08,2024-01-08,CS
+INFANT-011,Aberto,Suporte,Igor Mendes,Inovate,Falha de segurança,Sistema apresenta falha de segurança,João Silva,Firewall,Palo Alto,SN234567,Porto Alegre,RS,2024-01-12,,suporte
+INFANT-012,Fechado,Reunião,Jaqueline Souza,Politec,Alinhamento de requisitos,Reunião para alinhamento de requisitos,Karina Costa,N/A,N/A,N/A,Goiânia,GO,2024-01-07,2024-01-07,CS
+INFANT-013,Aberto,Suporte,Kevin Oliveira,TechCorp,Problema de performance,Sistema apresenta queda de performance,Leonardo Santos,Servidor,Windows Server,SN678901,Brasília,DF,2024-01-11,,suporte
+INFANT-014,Fechado,Acompanhamento,Larissa Pereira,Inovate,Acompanhamento de demanda,Acompanhamento de demanda em andamento,Mariana Costa,N/A,N/A,N/A,Belém,PA,2024-01-06,2024-01-06,CS
+INFANT-015,Aberto,Suporte,Marcelo Gomes,Politec,Erro de integração,Integração com sistema externo apresenta erro,Natália Silva,API,REST,SN012345,Maceió,AL,2024-01-10,,suporte
+INFANT-016,Fechado,Ligação,Natália Rocha,TechCorp,Suporte técnico,Ligação para suporte técnico,Otávio Costa,N/A,N/A,N/A,Teresina,PI,2024-01-05,2024-01-05,CS
+INFANT-017,Aberto,Suporte,Otávio Ferreira,Inovate,Problema de backup,Backup não está sendo executado corretamente,Paulo Santos,Storage,NAS,SN345678,João Pessoa,PB,2024-01-09,,suporte
+INFANT-018,Fechado,Reunião,Patricia Alves,Politec,Revisão de projeto,Reunião para revisão de projeto,Quentin Costa,N/A,N/A,N/A,Natal,RN,2024-01-04,2024-01-04,CS
+INFANT-019,Aberto,Suporte,Quentin Martins,TechCorp,Falha de comunicação,Comunicação entre sistemas apresenta falha,Rafael Silva,Modem,ADSL,SN789012,Aracaju,SE,2024-01-08,,suporte
+INFANT-020,Fechado,Acompanhamento,Raquel Dias,Inovate,Acompanhamento de implementação,Acompanhamento de implementação de solução,Sandra Costa,N/A,N/A,N/A,Palmas,TO,2024-01-03,2024-01-03,CS
+INFANT-021,Aberto,Suporte,Samuel Oliveira,Politec,Erro de configuração,Configuração do sistema está incorreta,Tiago Santos,Servidor,Apache,SN234567,Rio Branco,AC,2024-01-07,,suporte
+INFANT-022,Fechado,Ligação,Tatiana Rocha,TechCorp,Suporte preventivo,Ligação para suporte preventivo,Ursula Costa,N/A,N/A,N/A,Boa Vista,RR,2024-01-02,2024-01-02,CS
+INFANT-023,Aberto,Suporte,Ulisses Ferreira,Inovate,Problema de acesso,Usuário não consegue acessar sistema,Vitor Silva,Servidor,Active Directory,SN567890,Macapá,AP,2024-01-06,,suporte
+INFANT-024,Fechado,Reunião,Vanessa Alves,Politec,Planejamento de recursos,Reunião para planejamento de recursos,Wagner Costa,N/A,N/A,N/A,Cuiabá,MT,2024-01-01,2024-01-01,CS
+INFANT-025,Aberto,Suporte,Wagner Martins,TechCorp,Falha de licença,Licença de software expirou,Xavier Santos,Software,Microsoft Office,SN901234,Campo Grande,MS,2024-01-05,,suporte
+INFANT-026,Fechado,Acompanhamento,Ximena Dias,Inovate,Acompanhamento de suporte,Acompanhamento de suporte ao cliente,Yasmin Costa,N/A,N/A,N/A,Vitória,ES,2023-12-31,2023-12-31,CS
+INFANT-027,Aberto,Suporte,Yuri Oliveira,Politec,Erro de sincronização,Sincronização de dados apresenta erro,Zoe Silva,Servidor,MySQL,SN345678,Maceió,AL,2024-01-04,,suporte
+INFANT-028,Fechado,Ligação,Zelia Rocha,TechCorp,Suporte técnico,Ligação para suporte técnico,Alice Costa,N/A,N/A,N/A,Aracaju,SE,2023-12-30,2023-12-30,CS
+INFANT-029,Aberto,Suporte,Adriano Ferreira,Inovate,Problema de impressora,Impressora não funciona corretamente,Bruno Silva,Impressora,HP LaserJet,SN789012,Teresina,PI,2024-01-03,,suporte
+INFANT-030,Fechado,Reunião,Beatriz Alves,Politec,Revisão de contrato,Reunião para revisão de contrato,Carla Costa,N/A,N/A,N/A,João Pessoa,PB,2023-12-29,2023-12-29,CS
+INFANT-031,Aberto,Suporte,Cesar Martins,TechCorp,Falha de monitor,Monitor apresenta falha de exibição,Diego Santos,Monitor,Dell,SN234567,Natal,RN,2024-01-02,,suporte
+INFANT-032,Fechado,Acompanhamento,Debora Dias,Inovate,Acompanhamento de treinamento,Acompanhamento de treinamento de usuários,Elisa Costa,N/A,N/A,N/A,Palmas,TO,2023-12-28,2023-12-28,CS
+INFANT-033,Aberto,Suporte,Emerson Oliveira,Politec,Problema de mouse,Mouse não funciona corretamente,Felipe Silva,Mouse,Logitech,SN567890,Rio Branco,AC,2024-01-01,,suporte
+INFANT-034,Fechado,Ligação,Fernanda Rocha,TechCorp,Suporte preventivo,Ligação para suporte preventivo,Gabriela Costa,N/A,N/A,N/A,Boa Vista,RR,2023-12-27,2023-12-27,CS
+INFANT-035,Aberto,Suporte,Gilson Ferreira,Inovate,Falha de teclado,Teclado apresenta falha intermitente,Heitor Silva,Teclado,Corsair,SN901234,Macapá,AP,2023-12-31,,suporte
+INFANT-036,Fechado,Reunião,Helena Alves,Politec,Alinhamento de objetivos,Reunião para alinhamento de objetivos,Iris Costa,N/A,N/A,N/A,Cuiabá,MT,2023-12-26,2023-12-26,CS
+INFANT-037,Aberto,Suporte,Igor Martins,TechCorp,Problema de webcam,Webcam não funciona corretamente,Jair Silva,Webcam,Logitech,SN345678,Campo Grande,MS,2023-12-30,,suporte
+INFANT-038,Fechado,Acompanhamento,Iris Dias,Inovate,Acompanhamento de satisfação,Acompanhamento de satisfação do cliente,Karina Costa,N/A,N/A,N/A,Vitória,ES,2023-12-25,2023-12-25,CS
+INFANT-039,Aberto,Suporte,Jair Oliveira,Politec,Falha de microfone,Microfone apresenta falha de áudio,Leonardo Silva,Microfone,Blue Yeti,SN789012,Maceió,AL,2023-12-29,,suporte
+INFANT-040,Fechado,Ligação,Karina Rocha,TechCorp,Suporte técnico,Ligação para suporte técnico,Mariana Costa,N/A,N/A,N/A,Aracaju,SE,2023-12-24,2023-12-24,CS

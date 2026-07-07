@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validação - 54 Chamados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a1628;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+        }
+        .validation {
+            background: #1a3a52;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #00d4ff;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat {
+            background: #2a4a62;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-label {
+            color: #b0b8c1;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        .stat.correct {
+            border: 2px solid #10b981;
+        }
+        .stat.correct .stat-value {
+            color: #10b981;
+        }
+        .stat.error {
+            border: 2px solid #ef4444;
+        }
+        .stat.error .stat-value {
+            color: #ef4444;
+        }
+        button {
+            background: #00d4ff;
+            color: #0a1628;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #00b8d4;
+        }
+        .summary {
+            background: #1a3a52;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border: 2px solid #00d4ff;
+        }
+        .summary h2 {
+            color: #00d4ff;
+            margin-top: 0;
+        }
+        .summary p {
+            line-height: 1.8;
+            color: #b0b8c1;
+        }
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Validação de Dados - 54 Chamados</h1>
+        
+        <div class="validation">
+            <h2>Dados Esperados</h2>
+            
+            <div class="row">
+                <div class="stat correct">
+                    <div class="stat-label">Total de Chamados</div>
+                    <div class="stat-value" id="totalStat">54</div>
+                </div>
+                <div class="stat correct">
+                    <div class="stat-label">Resolvidos</div>
+                    <div class="stat-value" id="resolvedStat">51</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="stat correct">
+                    <div class="stat-label">Em Atendimento</div>
+                    <div class="stat-value" id="openStat">3</div>
+                </div>
+                <div class="stat correct">
+                    <div class="stat-label">Suporte (Técnico)</div>
+                    <div class="stat-value" id="supportStat">14</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="stat correct">
+                    <div class="stat-label">Customer Success (CS)</div>
+                    <div class="stat-value" id="csStat">40</div>
+                </div>
+                <div class="stat correct">
+                    <div class="stat-label">Ligações</div>
+                    <div class="stat-value" id="callsStat">24</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="stat correct">
+                    <div class="stat-label">Reuniões</div>
+                    <div class="stat-value" id="meetingsStat">2</div>
+                </div>
+                <div class="stat correct">
+                    <div class="stat-label">Sistema</div>
+                    <div class="stat-value" id="systemStat">15</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="stat correct">
+                    <div class="stat-label">Equipamento</div>
+                    <div class="stat-value" id="equipmentStat">5</div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="selectFile()">📁 Selecionar Arquivo CSV</button>
+        <input type="file" id="fileInput" accept=".csv" onchange="handleFileSelect(event)">
+
+        <div class="summary">
+            <h2>Resumo da Validação</h2>
+            <p id="summaryText">Clique em "Selecionar Arquivo CSV" para validar seus dados.</p>
+        </div>
+    </div>
+
+    <script>
+        function selectFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = e.target.result;
+                analyzeAndValidate(data);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(data) {
+            const delimiter = data.includes(';') ? ';' : ',';
+            const lines = data.split('\n');
+            
+            if (lines.length === 0) return [];
+            
+            const headers = lines[0].split(delimiter).map(h => h.trim());
+            const result = [];
+            let i = 1;
+
+            while (i < lines.length) {
+                let line = lines[i].trim();
+                
+                if (!line) {
+                    i++;
+                    continue;
+                }
+
+                let quoteCount = (line.match(/"/g) || []).length;
+                
+                while (quoteCount % 2 !== 0 && i + 1 < lines.length) {
+                    i++;
+                    line += '\n' + lines[i];
+                    quoteCount = (line.match(/"/g) || []).length;
+                }
+
+                const values = parseCSVLine(line, delimiter);
+                const obj = {};
+                headers.forEach((header, index) => {
+                    obj[header] = values[index] || '';
+                });
+                result.push(obj);
+                i++;
+            }
+
+            return result;
+        }
+
+        function parseCSVLine(line, delimiter) {
+            const result = [];
+            let current = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    if (insideQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        insideQuotes = !insideQuotes;
+                    }
+                } else if (char === delimiter && !insideQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+
+            result.push(current.trim());
+            return result;
+        }
+
+        function analyzeAndValidate(data) {
+            const parsed = parseCSV(data);
+            
+            const stats = {
+                total: parsed.length,
+                resolved: 0,
+                open: 0,
+                support: 0,
+                cs: 0,
+                calls: 0,
+                meetings: 0,
+                system: 0,
+                equipment: 0
+            };
+
+            parsed.forEach(row => {
+                const status = (row['Status'] || '').toLowerCase();
+                const equipe = (row['Equipe'] || row['Equpe'] || '').toLowerCase().trim();
+                const tipo = (row['Tipo'] || '').toLowerCase().trim();
+
+                if (status.includes('resolvido')) stats.resolved++;
+                if (status.includes('atendimento')) stats.open++;
+                
+                if (equipe === 'suporte') stats.support++;
+                if (equipe === 'cs') stats.cs++;
+                
+                if (tipo === 'ligação') stats.calls++;
+                if (tipo === 'reunião') stats.meetings++;
+                if (tipo === 'sistema') stats.system++;
+                if (tipo === 'equipamento') stats.equipment++;
+            });
+
+            // Atualizar valores
+            document.getElementById('totalStat').textContent = stats.total;
+            document.getElementById('resolvedStat').textContent = stats.resolved;
+            document.getElementById('openStat').textContent = stats.open;
+            document.getElementById('supportStat').textContent = stats.support;
+            document.getElementById('csStat').textContent = stats.cs;
+            document.getElementById('callsStat').textContent = stats.calls;
+            document.getElementById('meetingsStat').textContent = stats.meetings;
+            document.getElementById('systemStat').textContent = stats.system;
+            document.getElementById('equipmentStat').textContent = stats.equipment;
+
+            // Validar
+            const expected = {
+                total: 54,
+                resolved: 51,
+                open: 3,
+                support: 14,
+                cs: 40,
+                calls: 24,
+                meetings: 2,
+                system: 15,
+                equipment: 5
+            };
+
+            let allCorrect = true;
+            for (let key in expected) {
+                if (stats[key] !== expected[key]) {
+                    allCorrect = false;
+                }
+            }
+
+            // Gerar resumo
+            let summary = '<h3>Resultado da Validação:</h3>';
+            if (allCorrect) {
+                summary += '<p class="success">✅ TODOS OS DADOS ESTÃO CORRETOS!</p>';
+                summary += '<p>O arquivo contém exatamente 54 chamados com a seguinte distribuição:</p>';
+                summary += '<ul>';
+                summary += `<li><strong>Total:</strong> ${stats.total} chamados</li>`;
+                summary += `<li><strong>Resolvidos:</strong> ${stats.resolved}</li>`;
+                summary += `<li><strong>Em Atendimento:</strong> ${stats.open}</li>`;
+                summary += `<li><strong>Suporte:</strong> ${stats.support} chamados técnicos</li>`;
+                summary += `<li><strong>CS:</strong> ${stats.cs} atendimentos</li>`;
+                summary += `<li><strong>Ligações:</strong> ${stats.calls}</li>`;
+                summary += `<li><strong>Reuniões:</strong> ${stats.meetings}</li>`;
+                summary += `<li><strong>Sistema:</strong> ${stats.system}</li>`;
+                summary += `<li><strong>Equipamento:</strong> ${stats.equipment}</li>`;
+                summary += '</ul>';
+                summary += '<p><strong>O dashboard agora exibirá os dados corretamente! 🎉</strong></p>';
+            } else {
+                summary += '<p style="color: #ef4444;">❌ Alguns dados não batem com o esperado</p>';
+                summary += '<p>Diferenças encontradas:</p>';
+                summary += '<ul>';
+                for (let key in expected) {
+                    if (stats[key] !== expected[key]) {
+                        summary += `<li>${key}: esperado ${expected[key]}, obtido ${stats[key]}</li>`;
+                    }
+                }
+                summary += '</ul>';
+            }
+
+            document.getElementById('summaryText').innerHTML = summary;
+        }
+    </script>
+</body>
+</html>

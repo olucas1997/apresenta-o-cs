@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Simples - Contagem de Dados</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #0a1628;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00d4ff;
+        }
+        .result {
+            background: #1a3a52;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #00d4ff;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 10px 0;
+        }
+        .stat {
+            background: #2a4a62;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .label {
+            color: #b0b8c1;
+            font-size: 0.9em;
+        }
+        .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-top: 10px;
+        }
+        button {
+            background: #00d4ff;
+            color: #0a1628;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+        }
+        pre {
+            background: #1a3a52;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            color: #00d4ff;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Teste Simples de Contagem</h1>
+        
+        <button onclick="testCSV()">Carregar e Contar</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function testCSV() {
+            // Dados CSV embutidos (primeiras 10 linhas como exemplo)
+            const csvData = `Protocolo;Status;Tipo;Cliente;E-mail do cliente;Empresa do cliente;Resumo;Descrição;Técnico responsável;Equipamento;Sistema(s);Nº de Série;Cidade;Estado;Data de abertura;Data de fechamento;Equipe
+CH-2026-7586;Em Atendimento;Equipamento;SERGIO SOARES DOS SANTOS JUNIOR;tiganhatempopedra90@seplag.mt.gov.br;ganha tempo;equipamento infantil com defeito ;O coletor infantil ele esta com mal contato e não esta querendo ficar disponível para fazer coleta, o software dele ja foi atualizado e o problema persiste;Lucas de Azevedo do Carmo;ETAN;OPENBIO LEGADO;IF.06-00170;Cuiabá;MT;01/07/2026, 16:30:56;;suporte
+CH-2026-1876;Em Atendimento;Sistema;Fabiana Walesko;fabiana.walesko@infantid.com;INFANTID;HT;Ajustar para atualização automática, na tentativa de não ser necessário mais acesso remoto para conectar a plataforma;Lucas de Azevedo do Carmo;ETAN;PLATAFORMA;S/N;CURITIBA;PR;26/06/2026, 16:32:19;;suporte
+CH-2026-4311;Resolvido;Equipamento;SERGIO SOARES DOS SANTOS JUNIOR;tiganhatempopedra90@seplag.mt.gov.br;ganha tempo;Coletor infantil com falha ;O coletor infantil ele esta com mal contato e não esta querendo ficar disponível para fazer coleta, o software dele ja foi atualizado e o problema persiste ;Lucas de Azevedo do Carmo;ETAN;OPENBIO LEGADO;IF.06-00170;Cuiabá;MT;02/06/2026, 16:31:34;26/06/2026;suporte
+CH-2026-1189;Em Atendimento;Equipamento;Aline Fernandes Pereira;alinepereira@politec.mt.gov.br;POLITEC;Leitor infantil nao funciona;Nao esta acendendo o laser. Aparece dispositivo desconectado.;Lucas de Azevedo do Carmo;ETAN;OPENBIO LEGADO;IF.06-00714;Alta Floresta;MT;25/06/2026, 09:44:36;;suporte
+CH-2026-1537;Resolvido;Sistema;Cristiane Borges Passos;cristianepassos@politec.mt.gov.br;Politec;Kit infantil com informação de dedo duplicado e qualidade baixa;Kit esta duplicando as digitais, aparecendo informação de dedos duplicados tambem e qualidade baixa, digitais nao estao gravando so as linhas, mas aparecendo os poros, ficando coleta sobreposta;Lucas de Azevedo do Carmo;ETAN;OPENBIO LEGADO;S/N;;MT;23/06/2026, 08:20:52;26/06/2026;suporte
+CH-2026-8285;Resolvido;Equipamento;Eliane Dambros;elianeelisete@hotmail.com;PREFEITURA MUNICIPAL DE QUERENCIA;Coletor ;Coletor infantil não só carrega e mão faz a coleta ;Lucas de Azevedo do Carmo;ETAN;OPENBIO LEGADO;IF.00-01;Querência;MT;25/06/2026, 10:14:34;26/06/2026;suporte
+CH-2026-9779;Resolvido;Sistema;LILIANE DE CAMPOS CHIAMENTE;lilianechiamente@politec.mt.gov.br;Politec;Baixa nitidez;Baixa nitidez preciso atualizar software;Lucas de Azevedo do Carmo;ETAN;OPENBIO LEGADO;S/N;;MT;25/06/2026, 09:03:04;26/06/2026;suporte
+CH-2026-5892;Resolvido;Sistema;Eliane Dambros;elianeelisete@hotmail.com;PREFEITURA MUNICIPAL DE QUERENCIA;ETAN Não esta coletando;Inseri vídeo ate facilitar o entendimento;Lucas de Azevedo do Carmo;ETAN;OPENBIO LEGADO;S/N;Querência;MT;25/06/2026, 10:01:03;26/06/2026;suporte
+CH-2026-6378;Resolvido;Sistema;Fabiana Walesko;fabiana.walesko@infantid.com;INFANTID;HT UCIN;Amanda entrou em contado ontem informando que o ETAN não esta sendo reconhecido;Lucas de Azevedo do Carmo;ETAN;PLATAFORMA;S/N;CURITIBA;PR;24/06/2026, 08:00:12;26/06/2026;suporte`;
+            
+            const data = csvData;
+            
+            console.log('=== DADOS BRUTOS ===');
+            console.log('Tamanho:', data.length);
+            
+            // Contar linhas simples
+            const lines = data.split('\n');
+            console.log('Total de linhas:', lines.length);
+            console.log('Primeira linha (header):', lines[0]);
+            console.log('Última linha:', lines[lines.length - 1]);
+            
+            // Contar linhas com dados (não vazias)
+            let dataLines = 0;
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim().length > 0) {
+                    dataLines++;
+                }
+            }
+            console.log('Linhas com dados:', dataLines);
+            
+            // Contar por status
+            let resolvido = 0;
+            let emAtendimento = 0;
+            let suporte = 0;
+            let cs = 0;
+            let ligacao = 0;
+            let reuniao = 0;
+            let sistema = 0;
+            let equipamento = 0;
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.trim()) continue;
+                
+                // Simples: procurar por palavras-chave
+                if (line.includes('Resolvido')) resolvido++;
+                if (line.includes('Em Atendimento')) emAtendimento++;
+                if (line.includes(';suporte')) suporte++;
+                if (line.includes(';CS')) cs++;
+                if (line.includes(';ligação;')) ligacao++;
+                if (line.includes(';reunião;')) reuniao++;
+                if (line.includes(';Sistema;')) sistema++;
+                if (line.includes(';Equipamento;')) equipamento++;
+            }
+            
+            console.log('=== CONTAGEM ===');
+            console.log('Resolvido:', resolvido);
+            console.log('Em Atendimento:', emAtendimento);
+            console.log('Suporte:', suporte);
+            console.log('CS:', cs);
+            console.log('Ligação:', ligacao);
+            console.log('Reunião:', reuniao);
+            console.log('Sistema:', sistema);
+            console.log('Equipamento:', equipamento);
+            
+            // Mostrar resultado
+            const html = `
+                <div class="result">
+                    <h2>Contagem Simples (por busca de texto)</h2>
+                    <div class="row">
+                        <div class="stat">
+                            <div class="label">Total de Linhas com Dados</div>
+                            <div class="value">${dataLines}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="label">Resolvido</div>
+                            <div class="value">${resolvido}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="stat">
+                            <div class="label">Em Atendimento</div>
+                            <div class="value">${emAtendimento}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="label">Suporte</div>
+                            <div class="value">${suporte}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="stat">
+                            <div class="label">CS</div>
+                            <div class="value">${cs}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="label">Ligação</div>
+                            <div class="value">${ligacao}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="stat">
+                            <div class="label">Reunião</div>
+                            <div class="value">${reuniao}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="label">Sistema</div>
+                            <div class="value">${sistema}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="stat">
+                            <div class="label">Equipamento</div>
+                            <div class="value">${equipamento}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result">
+                    <h2>Esperado vs Obtido</h2>
+                    <pre>
+ESPERADO:
+- Total: 54
+- Resolvido: 51
+- Em Atendimento: 3
+- Suporte: 14
+- CS: 40
+- Ligação: 24
+- Reunião: 2
+- Sistema: 15
+- Equipamento: 5
+
+OBTIDO:
+- Total: ${dataLines}
+- Resolvido: ${resolvido}
+- Em Atendimento: ${emAtendimento}
+- Suporte: ${suporte}
+- CS: ${cs}
+- Ligação: ${ligacao}
+- Reunião: ${reuniao}
+- Sistema: ${sistema}
+- Equipamento: ${equipamento}
+                    </pre>
+                </div>
+            `;
+            
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        window.addEventListener('load', testCSV);
+    </script>
+</body>
+</html>

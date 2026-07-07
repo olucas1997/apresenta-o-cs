@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Final - Validação Completa</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #0a1628;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00d4ff;
+            text-align: center;
+        }
+        .result {
+            background: #1a3a52;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #00d4ff;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 10px 0;
+        }
+        .stat {
+            background: #2a4a62;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .label {
+            color: #b0b8c1;
+            font-size: 0.9em;
+        }
+        .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .correct {
+            color: #10b981;
+            border: 2px solid #10b981;
+        }
+        .incorrect {
+            color: #ef4444;
+            border: 2px solid #ef4444;
+        }
+        button {
+            background: #00d4ff;
+            color: #0a1628;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Teste Final - Validação Completa</h1>
+        
+        <button onclick="selectFile()">📁 Selecionar Arquivo CSV</button>
+        <input type="file" id="fileInput" accept=".csv" onchange="handleFileSelect(event)">
+
+        <div id="results"></div>
+    </div>
+
+    <script src="data-processor.js"></script>
+    <script>
+        function selectFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = e.target.result;
+                const parsed = parseCSV(data);
+                analyzeData(parsed);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(data) {
+            const delimiter = data.includes(';') ? ';' : ',';
+            const lines = data.split('\n');
+            
+            if (lines.length === 0) return [];
+            
+            const headers = lines[0].split(delimiter).map(h => h.trim());
+            const result = [];
+            let i = 1;
+
+            while (i < lines.length) {
+                let line = lines[i].trim();
+                
+                if (!line) {
+                    i++;
+                    continue;
+                }
+
+                let quoteCount = (line.match(/"/g) || []).length;
+                
+                while (quoteCount % 2 !== 0 && i + 1 < lines.length) {
+                    i++;
+                    line += '\n' + lines[i];
+                    quoteCount = (line.match(/"/g) || []).length;
+                }
+
+                const values = parseCSVLine(line, delimiter);
+                const obj = {};
+                headers.forEach((header, index) => {
+                    obj[header] = values[index] || '';
+                });
+                result.push(obj);
+                i++;
+            }
+
+            return result;
+        }
+
+        function parseCSVLine(line, delimiter) {
+            const result = [];
+            let current = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    if (insideQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        insideQuotes = !insideQuotes;
+                    }
+                } else if (char === delimiter && !insideQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+
+            result.push(current.trim());
+            return result;
+        }
+
+        function analyzeData(data) {
+            // Filtrar vazios
+            const validData = data.filter(row => row['Protocolo'] && row['Protocolo'].trim());
+            
+            const stats = {
+                total: validData.length,
+                resolvido: 0,
+                emAtendimento: 0,
+                suporte: 0,
+                cs: 0,
+                ligacao: 0,
+                reuniao: 0,
+                sistema: 0,
+                equipamento: 0
+            };
+
+            validData.forEach(row => {
+                const status = (row['Status'] || '').toLowerCase();
+                const equipe = (row['Equipe'] || row['Equpe'] || '').toLowerCase().trim();
+                const tipo = (row['Tipo'] || '').toLowerCase().trim();
+
+                if (status.includes('resolvido')) stats.resolvido++;
+                if (status.includes('atendimento')) stats.emAtendimento++;
+                
+                if (equipe === 'suporte') stats.suporte++;
+                if (equipe === 'cs') stats.cs++;
+                
+                if (tipo === 'ligação') stats.ligacao++;
+                if (tipo === 'reunião') stats.reuniao++;
+                if (tipo === 'sistema') stats.sistema++;
+                if (tipo === 'equipamento') stats.equipamento++;
+            });
+
+            const expected = {
+                total: 54,
+                resolvido: 51,
+                emAtendimento: 3,
+                suporte: 14,
+                cs: 40,
+                ligacao: 24,
+                reuniao: 2,
+                sistema: 15,
+                equipamento: 5
+            };
+
+            let allCorrect = true;
+            for (let key in expected) {
+                if (stats[key] !== expected[key]) {
+                    allCorrect = false;
+                }
+            }
+
+            const html = `
+                <div class="result">
+                    <h2>Resultados da Validação</h2>
+                    <div class="row">
+                        <div class="stat ${stats.total === expected.total ? 'correct' : 'incorrect'}">
+                            <div class="label">Total</div>
+                            <div class="value">${stats.total}</div>
+                            <small>${expected.total === stats.total ? '✅' : '❌'} (esperado: ${expected.total})</small>
+                        </div>
+                        <div class="stat ${stats.resolvido === expected.resolvido ? 'correct' : 'incorrect'}">
+                            <div class="label">Resolvido</div>
+                            <div class="value">${stats.resolvido}</div>
+                            <small>${expected.resolvido === stats.resolvido ? '✅' : '❌'} (esperado: ${expected.resolvido})</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="stat ${stats.emAtendimento === expected.emAtendimento ? 'correct' : 'incorrect'}">
+                            <div class="label">Em Atendimento</div>
+                            <div class="value">${stats.emAtendimento}</div>
+                            <small>${expected.emAtendimento === stats.emAtendimento ? '✅' : '❌'} (esperado: ${expected.emAtendimento})</small>
+                        </div>
+                        <div class="stat ${stats.suporte === expected.suporte ? 'correct' : 'incorrect'}">
+                            <div class="label">Suporte</div>
+                            <div class="value">${stats.suporte}</div>
+                            <small>${expected.suporte === stats.suporte ? '✅' : '❌'} (esperado: ${expected.suporte})</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="stat ${stats.cs === expected.cs ? 'correct' : 'incorrect'}">
+                            <div class="label">CS</div>
+                            <div class="value">${stats.cs}</div>
+                            <small>${expected.cs === stats.cs ? '✅' : '❌'} (esperado: ${expected.cs})</small>
+                        </div>
+                        <div class="stat ${stats.ligacao === expected.ligacao ? 'correct' : 'incorrect'}">
+                            <div class="label">Ligação</div>
+                            <div class="value">${stats.ligacao}</div>
+                            <small>${expected.ligacao === stats.ligacao ? '✅' : '❌'} (esperado: ${expected.ligacao})</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="stat ${stats.reuniao === expected.reuniao ? 'correct' : 'incorrect'}">
+                            <div class="label">Reunião</div>
+                            <div class="value">${stats.reuniao}</div>
+                            <small>${expected.reuniao === stats.reuniao ? '✅' : '❌'} (esperado: ${expected.reuniao})</small>
+                        </div>
+                        <div class="stat ${stats.sistema === expected.sistema ? 'correct' : 'incorrect'}">
+                            <div class="label">Sistema</div>
+                            <div class="value">${stats.sistema}</div>
+                            <small>${expected.sistema === stats.sistema ? '✅' : '❌'} (esperado: ${expected.sistema})</small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="stat ${stats.equipamento === expected.equipamento ? 'correct' : 'incorrect'}">
+                            <div class="label">Equipamento</div>
+                            <div class="value">${stats.equipamento}</div>
+                            <small>${expected.equipamento === stats.equipamento ? '✅' : '❌'} (esperado: ${expected.equipamento})</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result">
+                    <h2>${allCorrect ? '✅ SUCESSO!' : '❌ ERROS ENCONTRADOS'}</h2>
+                    ${allCorrect ? 
+                        '<p style="color: #10b981; font-size: 1.1em;">Todos os dados estão sendo contados corretamente! O dashboard agora exibirá os números certos.</p>' :
+                        '<p style="color: #ef4444;">Alguns números ainda não batem. Verifique os valores em vermelho acima.</p>'
+                    }
+                </div>
+            `;
+
+            document.getElementById('results').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

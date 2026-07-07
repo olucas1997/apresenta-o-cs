@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Análise de Linhas</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #0a1628;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00d4ff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a3a52;
+            margin: 20px 0;
+        }
+        th {
+            background: #0a1628;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #00d4ff;
+            color: #00d4ff;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #2a4a62;
+        }
+        tr:hover {
+            background: #2a4a62;
+        }
+        .protocolo {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+        .status-resolvido {
+            color: #10b981;
+        }
+        .status-aberto {
+            color: #ef4444;
+        }
+        button {
+            background: #00d4ff;
+            color: #0a1628;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .summary {
+            background: #1a3a52;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Análise Detalhada de Linhas</h1>
+        <p>Mostra cada linha do arquivo CSV e como está sendo contada</p>
+        
+        <button onclick="loadAndAnalyze()">Carregar Arquivo</button>
+
+        <div id="summary"></div>
+        <div id="table"></div>
+    </div>
+
+    <script>
+        function loadAndAnalyze() {
+            fetch('chamados_todos_inicio_a_2026-07-02.csv')
+                .then(r => r.text())
+                .then(data => {
+                    const lines = data.split('\n');
+                    const headers = lines[0].split(';').map(h => h.trim());
+                    
+                    // Índices das colunas
+                    const protocoloIdx = headers.indexOf('Protocolo');
+                    const statusIdx = headers.indexOf('Status');
+                    const tipoIdx = headers.indexOf('Tipo');
+                    const equipeIdx = headers.indexOf('Equipe') >= 0 ? headers.indexOf('Equipe') : headers.indexOf('Equpe');
+                    
+                    console.log('Índices:', { protocoloIdx, statusIdx, tipoIdx, equipeIdx });
+                    
+                    let tableHtml = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Linha</th>
+                                    <th>Protocolo</th>
+                                    <th>Status</th>
+                                    <th>Tipo</th>
+                                    <th>Equipe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    let stats = {
+                        total: 0,
+                        resolvido: 0,
+                        aberto: 0,
+                        suporte: 0,
+                        cs: 0
+                    };
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        stats.total++;
+                        
+                        // Parse simples (pode não funcionar bem com campos multiline)
+                        const parts = line.split(';');
+                        const protocolo = parts[protocoloIdx] || '';
+                        const status = parts[statusIdx] || '';
+                        const tipo = parts[tipoIdx] || '';
+                        const equipe = parts[equipeIdx] || '';
+                        
+                        if (status.includes('Resolvido')) stats.resolvido++;
+                        if (status.includes('Atendimento')) stats.aberto++;
+                        if (equipe.toLowerCase().includes('suporte')) stats.suporte++;
+                        if (equipe.toLowerCase().includes('cs')) stats.cs++;
+                        
+                        const statusClass = status.includes('Resolvido') ? 'status-resolvido' : 'status-aberto';
+                        
+                        tableHtml += `
+                            <tr>
+                                <td>${i}</td>
+                                <td class="protocolo">${protocolo}</td>
+                                <td class="${statusClass}">${status}</td>
+                                <td>${tipo}</td>
+                                <td>${equipe}</td>
+                            </tr>
+                        `;
+                    }
+                    
+                    tableHtml += `
+                            </tbody>
+                        </table>
+                    `;
+                    
+                    const summaryHtml = `
+                        <div class="summary">
+                            <h2>Resumo da Análise</h2>
+                            <p><strong>Total de Registros:</strong> ${stats.total}</p>
+                            <p><strong>Resolvidos:</strong> ${stats.resolvido}</p>
+                            <p><strong>Em Atendimento:</strong> ${stats.aberto}</p>
+                            <p><strong>Suporte:</strong> ${stats.suporte}</p>
+                            <p><strong>CS:</strong> ${stats.cs}</p>
+                            <hr>
+                            <p><strong>Esperado:</strong> Total 54, Resolvido 51, Aberto 3, Suporte 14, CS 40</p>
+                        </div>
+                    `;
+                    
+                    document.getElementById('summary').innerHTML = summaryHtml;
+                    document.getElementById('table').innerHTML = tableHtml;
+                })
+                .catch(err => {
+                    document.getElementById('summary').innerHTML = `<div class="summary" style="color: #ef4444;">Erro: ${err.message}</div>`;
+                });
+        }
+        
+        window.addEventListener('load', loadAndAnalyze);
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Dashboard Executivo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a1628;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00d4ff;
+        }
+        .info {
+            background: #1a3a52;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        button {
+            background: #00d4ff;
+            color: #0a1628;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover {
+            background: #00b8d4;
+        }
+        #output {
+            background: #1a3a52;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste do Dashboard Executivo</h1>
+        
+        <div class="info">
+            <h3>Instruções:</h3>
+            <p>1. Clique em "Carregar Arquivo CSV" para selecionar o arquivo de dados</p>
+            <p>2. O dashboard será carregado automaticamente</p>
+            <p>3. Ou clique em "Abrir Dashboard" para usar dados de exemplo</p>
+        </div>
+
+        <div>
+            <button onclick="loadCSVFile()">📁 Carregar Arquivo CSV</button>
+            <button onclick="openDashboard()">📊 Abrir Dashboard</button>
+            <button onclick="testParsing()">🧪 Testar Parsing</button>
+        </div>
+
+        <div id="output"></div>
+    </div>
+
+    <input type="file" id="csvFile" accept=".csv" style="display: none;" onchange="handleFileSelect(event)">
+
+    <script>
+        function log(message) {
+            const output = document.getElementById('output');
+            output.textContent += message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function loadCSVFile() {
+            document.getElementById('csvFile').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = e.target.result;
+                log('✓ Arquivo carregado: ' + file.name);
+                log('Tamanho: ' + (file.size / 1024).toFixed(2) + ' KB');
+                
+                const lines = data.split('\n');
+                log('Total de linhas: ' + lines.length);
+                log('Primeiras 3 linhas:');
+                for (let i = 0; i < Math.min(3, lines.length); i++) {
+                    log('  ' + lines[i].substring(0, 100) + '...');
+                }
+
+                localStorage.setItem('csvData', data);
+                localStorage.setItem('csvFileName', file.name);
+                log('\n✓ Dados salvos em localStorage');
+                log('Abrindo dashboard em 2 segundos...');
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            };
+            reader.readAsText(file);
+        }
+
+        function openDashboard() {
+            window.location.href = 'index.html';
+        }
+
+        function testParsing() {
+            log('Testando parsing de CSV...\n');
+            
+            const testCSV = `Protocolo;Status;Tipo
+CH-001;Aberto;Suporte
+CH-002;Fechado;Atendimento`;
+
+            const lines = testCSV.split('\n');
+            const delimiter = lines[0].includes(';') ? ';' : ',';
+            log('Delimitador detectado: ' + (delimiter === ';' ? 'ponto e vírgula' : 'vírgula'));
+
+            const headers = lines[0].split(delimiter).map(h => h.trim());
+            log('Headers: ' + headers.join(', '));
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(delimiter).map(v => v.trim());
+                log('Linha ' + i + ': ' + values.join(' | '));
+            }
+        }
+
+        // Verificar se há dados em localStorage
+        window.addEventListener('load', () => {
+            const csvData = localStorage.getItem('csvData');
+            if (csvData) {
+                log('✓ Dados encontrados em localStorage');
+                log('Arquivo: ' + localStorage.getItem('csvFileName'));
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Análise de Dados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a1628;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #00d4ff;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #1a3a52;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #00d4ff;
+        }
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: #00d4ff;
+        }
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #1a3a52;
+        }
+        th {
+            background: #0a1628;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #00d4ff;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #2a4a62;
+        }
+        tr:hover {
+            background: #2a4a62;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .success {
+            color: #10b981;
+        }
+        button {
+            background: #00d4ff;
+            color: #0a1628;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover {
+            background: #00b8d4;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #1a3a52;
+            border-radius: 8px;
+            border-left: 4px solid #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug - Análise de Dados CSV</h1>
+        
+        <button onclick="loadAndAnalyze()">📊 Carregar e Analisar</button>
+        <button onclick="location.reload()">🔄 Recarregar</button>
+
+        <div id="stats"></div>
+        <div id="details"></div>
+    </div>
+
+    <script src="data-processor.js"></script>
+    <script src="dashboard.js"></script>
+    <script>
+        function log(msg) {
+            console.log(msg);
+        }
+
+        function loadAndAnalyze() {
+            fetch('chamados_todos_inicio_a_2026-07-02.csv')
+                .then(r => r.text())
+                .then(data => {
+                    const dashboard = new Dashboard();
+                    const parsed = dashboard.parseCSV(data);
+                    
+                    log('Total de registros:', parsed.length);
+                    log('Primeiros 3 registros:', parsed.slice(0, 3));
+                    
+                    analyzeData(parsed);
+                })
+                .catch(err => {
+                    document.getElementById('stats').innerHTML = `<div class="error">Erro ao carregar: ${err.message}</div>`;
+                });
+        }
+
+        function analyzeData(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('stats').innerHTML = '<div class="error">Nenhum dado encontrado</div>';
+                return;
+            }
+
+            // Contadores
+            const stats = {
+                total: data.length,
+                resolvido: 0,
+                emAtendimento: 0,
+                suporte: 0,
+                cs: 0,
+                tipos: {},
+                sistemas: {},
+                empresas: {},
+                estados: {}
+            };
+
+            data.forEach(row => {
+                // Status
+                const status = (row['Status'] || '').toLowerCase();
+                if (status.includes('resolvido')) stats.resolvido++;
+                if (status.includes('atendimento')) stats.emAtendimento++;
+
+                // Equipe
+                const equipe = (row['Equipe'] || row['Equpe'] || '').toLowerCase();
+                if (equipe === 'suporte') stats.suporte++;
+                if (equipe === 'cs') stats.cs++;
+
+                // Tipo
+                const tipo = row['Tipo'] || 'N/A';
+                stats.tipos[tipo] = (stats.tipos[tipo] || 0) + 1;
+
+                // Sistema
+                const sistema = row['Sistema(s)'] || 'N/A';
+                stats.sistemas[sistema] = (stats.sistemas[sistema] || 0) + 1;
+
+                // Empresa
+                const empresa = row['Empresa do cliente'] || 'N/A';
+                stats.empresas[empresa] = (stats.empresas[empresa] || 0) + 1;
+
+                // Estado
+                const estado = row['Estado'] || 'N/A';
+                stats.estados[estado] = (stats.estados[estado] || 0) + 1;
+            });
+
+            renderStats(stats);
+            renderDetails(data, stats);
+        }
+
+        function renderStats(stats) {
+            const html = `
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>Total de Chamados</h3>
+                        <div class="value">${stats.total}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Resolvidos</h3>
+                        <div class="value success">${stats.resolvido}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Em Atendimento</h3>
+                        <div class="value error">${stats.emAtendimento}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Suporte</h3>
+                        <div class="value">${stats.suporte}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Customer Success</h3>
+                        <div class="value">${stats.cs}</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('stats').innerHTML = html;
+        }
+
+        function renderDetails(data, stats) {
+            let html = '<div class="section"><h2>📋 Tipos de Atendimento</h2><table><tr><th>Tipo</th><th>Quantidade</th></tr>';
+            Object.entries(stats.tipos).forEach(([tipo, count]) => {
+                html += `<tr><td>${tipo}</td><td>${count}</td></tr>`;
+            });
+            html += '</table></div>';
+
+            html += '<div class="section"><h2>🖥️ Sistemas</h2><table><tr><th>Sistema</th><th>Quantidade</th></tr>';
+            Object.entries(stats.sistemas).forEach(([sistema, count]) => {
+                html += `<tr><td>${sistema}</td><td>${count}</td></tr>`;
+            });
+            html += '</table></div>';
+
+            html += '<div class="section"><h2>🏢 Empresas</h2><table><tr><th>Empresa</th><th>Quantidade</th></tr>';
+            Object.entries(stats.empresas).forEach(([empresa, count]) => {
+                html += `<tr><td>${empresa}</td><td>${count}</td></tr>`;
+            });
+            html += '</table></div>';
+
+            html += '<div class="section"><h2>📍 Estados</h2><table><tr><th>Estado</th><th>Quantidade</th></tr>';
+            Object.entries(stats.estados).forEach(([estado, count]) => {
+                html += `<tr><td>${estado}</td><td>${count}</td></tr>`;
+            });
+            html += '</table></div>';
+
+            html += '<div class="section"><h2>📊 Primeiros 10 Registros</h2><table><tr><th>Protocolo</th><th>Status</th><th>Tipo</th><th>Equipe</th><th>Empresa</th></tr>';
+            data.slice(0, 10).forEach(row => {
+                html += `<tr><td>${row['Protocolo']}</td><td>${row['Status']}</td><td>${row['Tipo']}</td><td>${row['Equipe'] || row['Equpe']}</td><td>${row['Empresa do cliente']}</td></tr>`;
+            });
+            html += '</table></div>';
+
+            document.getElementById('details').innerHTML = html;
+        }
+
+        window.addEventListener('load', loadAndAnalyze);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Chamados - Diretor</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .header {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #1a3a52;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .btn-upload {
+            background: #00d4ff;
+            color: #0a1628;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-upload:hover {
+            background: #00b8d4;
+            color: #0a1628;
+        }
+        
+        .weeks-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .week-section {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .week-title {
+            color: #1a3a52;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 3px solid #00d4ff;
+            padding-bottom: 15px;
+        }
+        
+        .calendar {
+            margin-bottom: 25px;
+        }
+        
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .calendar-day-name {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            font-size: 12px;
+            padding: 8px;
+        }
+        
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            background: #f9f9f9;
+        }
+        
+        .calendar-day.today {
+            background: #00d4ff;
+            color: white;
+            font-weight: 600;
+            border-color: #00d4ff;
+        }
+        
+        .calendar-day.selected {
+            background: #e3f2fd;
+            border-color: #00d4ff;
+        }
+        
+        .kpi-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #1a3a52 0%, #2a4a62 100%);
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+            border-left: 4px solid #00d4ff;
+        }
+        
+        .kpi-label {
+            font-size: 12px;
+            color: #b0b8c1;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .kpi-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+            width: 100%;
+        }
+        
+        .chart-section {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-title {
+            color: #1a3a52;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .chart-wrapper canvas {
+            max-width: 100%;
+            height: auto !important;
+            width: 100% !important;
+        }
+        
+        .table-section {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        
+        .table-title {
+            color: #1a3a52;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #1a3a52;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .status-resolvido {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-atendimento {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .problem-card {
+            background: #f9f9f9;
+            border-left: 4px solid #ff6b6b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .problem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .problem-protocol {
+            font-weight: 700;
+            color: #1a3a52;
+            font-size: 14px;
+        }
+        
+        .problem-status {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .problem-section {
+            margin-bottom: 0;
+        }
+        
+        .problem-label {
+            color: #666;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        
+        .problem-text {
+            color: #333;
+            font-size: 13px;
+            line-height: 1.6;
+            background: white;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            min-height: 60px;
+        }
+        
+        .problem-company {
+            color: #999;
+            font-size: 11px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        .attendance-card {
+            background: #f9f9f9;
+            border-left: 4px solid #1a3a52;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .attendance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .attendance-protocol {
+            font-weight: 700;
+            color: #1a3a52;
+            font-size: 14px;
+        }
+
+        .attendance-type {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 600;
+        }
+
+        .attendance-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .attendance-field {
+            font-size: 12px;
+        }
+
+        .attendance-label {
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 10px;
+            margin-bottom: 4px;
+        }
+
+        .attendance-value {
+            color: #333;
+            font-size: 13px;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .attendance-description {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .kpi-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .breakdown-chart {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .breakdown-label {
+            flex: 1;
+            font-weight: 600;
+            color: #1a3a52;
+            font-size: 13px;
+        }
+
+        .breakdown-count {
+            background: #00d4ff;
+            color: #0a1628;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 1200px) {
+            .weeks-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .action-plan-section {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .action-plan-title {
+            color: #1a3a52;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-plan-subtitle {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .action-plan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .action-plan-table thead {
+            background: #1a3a52;
+        }
+
+        .action-plan-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: white;
+            font-size: 13px;
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        .action-plan-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+            min-height: 100px;
+            vertical-align: top;
+            word-wrap: break-word;
+            white-space: normal;
+            overflow: visible;
+            line-height: 1.5;
+        }
+
+        .action-plan-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .action-plan-table tbody tr {
+            height: auto;
+            display: table-row;
+        }
+
+        .action-item-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+            background: white;
+            color: #333;
+            min-height: 60px;
+            resize: vertical;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow: visible;
+        }
+
+        .action-item-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .action-plan-table td {
+            vertical-align: middle;
+        }
+
+        .action-plan-table input {
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-in-progress {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .action-plan-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-add-action {
+            background: #00d4ff;
+            color: #0a1628;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-add-action:hover {
+            background: #00b8d4;
+        }
+
+        .btn-delete-action {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-delete-action:hover {
+            background: #ff5252;
+        }
+
+        .action-plan-empty {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-chart-bar"></i> Cockpit de Atendimento</h1>
+        <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-upload"></i> Carregar Planilha
+        </button>
+        <input type="file" id="fileInput" accept=".csv" onchange="handleFileUpload(event)">
+    </div>
+
+    <!-- Plano de Ação — Pontos Críticos -->
+    <div class="action-plan-section">
+        <div class="action-plan-title">
+            <i class="fas fa-tasks"></i> Plano de Ação — Pontos Críticos
+        </div>
+        <div class="action-plan-subtitle">
+            Objetivo: transformar recomendações da semana em ações com responsável, impacto e decisão gerencial.
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <!-- Semana Anterior -->
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #00d4ff;">
+                    <span style="color: #1a3a52; font-weight: 700; font-size: 14px;">📅 Reunião</span>
+                    <input type="date" id="prevWeekDate" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; font-family: 'Poppins', sans-serif;" onchange="ActionPlanManager.updateDate('prevWeek', this.value)">
+                </div>
+                <div class="action-plan-controls" style="margin-bottom: 12px;">
+                    <button class="btn-add-action" onclick="addActionItem('prevWeek')" style="font-size: 12px; padding: 8px 12px;">
+                        <i class="fas fa-plus"></i> Adicionar
+                    </button>
+                </div>
+                <table class="action-plan-table" style="font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Ponto Crítico</th>
+                            <th style="width: 25%;">Impacto</th>
+                            <th style="width: 30%;">Plano de Ação</th>
+                            <th style="width: 15%; text-align: center;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="actionPlanTableBodyPrev">
+                        <tr>
+                            <td colspan="4" class="action-plan-empty" style="padding: 15px;">Nenhum ponto adicionado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Semana Atual -->
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #00d4ff;">
+                    <span style="color: #1a3a52; font-weight: 700; font-size: 14px;">📅 Reunião</span>
+                    <input type="date" id="currentWeekDate" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; font-family: 'Poppins', sans-serif;" onchange="ActionPlanManager.updateDate('currentWeek', this.value)">
+                </div>
+                <div class="action-plan-controls" style="margin-bottom: 12px;">
+                    <button class="btn-add-action" onclick="addActionItem('currentWeek')" style="font-size: 12px; padding: 8px 12px;">
+                        <i class="fas fa-plus"></i> Adicionar
+                    </button>
+                </div>
+                <table class="action-plan-table" style="font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">Ponto Crítico</th>
+                            <th style="width: 25%;">Impacto</th>
+                            <th style="width: 30%;">Plano de Ação</th>
+                            <th style="width: 15%; text-align: center;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="actionPlanTableBodyCurrent">
+                        <tr>
+                            <td colspan="4" class="action-plan-empty" style="padding: 15px;">Nenhum ponto adicionado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtro de Datas -->
+    <div style="background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #1a3a52; font-weight: 600; font-size: 14px;">Data Inicial (Semana Anterior)</label>
+                <input type="date" id="prevWeekStart" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #1a3a52; font-weight: 600; font-size: 14px;">Data Final (Semana Anterior)</label>
+                <input type="date" id="prevWeekEnd" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #1a3a52; font-weight: 600; font-size: 14px;">Data Inicial (Semana Atual)</label>
+                <input type="date" id="currentWeekStart" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; color: #1a3a52; font-weight: 600; font-size: 14px;">Data Final (Semana Atual)</label>
+                <input type="date" id="currentWeekEnd" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+            </div>
+            <button onclick="applyCustomDates()" style="background: #00d4ff; color: #0a1628; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">
+                <i class="fas fa-filter"></i> Aplicar Filtro
+            </button>
+        </div>
+    </div>
+
+    <div class="weeks-container">
+        <!-- Semana Anterior -->
+        <div class="week-section">
+            <div class="week-title" id="prevWeekTitle">Semana Anterior</div>
+            <div class="calendar">
+                <div class="calendar-header">
+                    <div class="calendar-day-name">Dom</div>
+                    <div class="calendar-day-name">Seg</div>
+                    <div class="calendar-day-name">Ter</div>
+                    <div class="calendar-day-name">Qua</div>
+                    <div class="calendar-day-name">Qui</div>
+                    <div class="calendar-day-name">Sex</div>
+                    <div class="calendar-day-name">Sab</div>
+                </div>
+                <div class="calendar-days" id="prevWeekDays"></div>
+            </div>
+            <div class="kpi-row">
+                <div class="kpi-card" onclick="showKPIBreakdown('prevWeekCS', prevWeekData)" style="cursor: pointer;">
+                    <div class="kpi-label">Chamados CS</div>
+                    <div class="kpi-value" id="prevWeekCS">0</div>
+                </div>
+                <div class="kpi-card" onclick="showKPIBreakdown('prevWeekSupport', prevWeekData)" style="cursor: pointer;">
+                    <div class="kpi-label">Chamados Suporte</div>
+                    <div class="kpi-value" id="prevWeekSupport">0</div>
+                </div>
+            </div>
+            <div class="kpi-row">
+                <div class="kpi-card" onclick="showKPIBreakdown('prevWeekResolved', prevWeekData)" style="cursor: pointer;">
+                    <div class="kpi-label">Resolvidos</div>
+                    <div class="kpi-value" id="prevWeekResolved">0</div>
+                </div>
+                <div class="kpi-card" onclick="showKPIBreakdown('prevWeekOpen', prevWeekData)" style="cursor: pointer;">
+                    <div class="kpi-label">Em Atendimento</div>
+                    <div class="kpi-value" id="prevWeekOpen">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Semana Atual -->
+        <div class="week-section">
+            <div class="week-title" id="currentWeekTitle">Semana Atual</div>
+            <div class="calendar">
+                <div class="calendar-header">
+                    <div class="calendar-day-name">Dom</div>
+                    <div class="calendar-day-name">Seg</div>
+                    <div class="calendar-day-name">Ter</div>
+                    <div class="calendar-day-name">Qua</div>
+                    <div class="calendar-day-name">Qui</div>
+                    <div class="calendar-day-name">Sex</div>
+                    <div class="calendar-day-name">Sab</div>
+                </div>
+                <div class="calendar-days" id="currentWeekDays"></div>
+            </div>
+            <div class="kpi-row">
+                <div class="kpi-card" onclick="showKPIBreakdown('currentWeekCS', currentWeekData)" style="cursor: pointer;">
+                    <div class="kpi-label">Chamados CS</div>
+                    <div class="kpi-value" id="currentWeekCS">0</div>
+                </div>
+                <div class="kpi-card" onclick="showKPIBreakdown('currentWeekSupport', currentWeekData)" style="cursor: pointer;">
+                    <div class="kpi-label">Chamados Suporte</div>
+                    <div class="kpi-value" id="currentWeekSupport">0</div>
+                </div>
+            </div>
+            <div class="kpi-row">
+                <div class="kpi-card" onclick="showKPIBreakdown('currentWeekResolved', currentWeekData)" style="cursor: pointer;">
+                    <div class="kpi-label">Resolvidos</div>
+                    <div class="kpi-value" id="currentWeekResolved">0</div>
+                </div>
+                <div class="kpi-card" onclick="showKPIBreakdown('currentWeekOpen', currentWeekData)" style="cursor: pointer;">
+                    <div class="kpi-label">Em Atendimento</div>
+                    <div class="kpi-value" id="currentWeekOpen">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="charts-container">
+        <div class="chart-section">
+            <div class="chart-title">Problemas Mais Comuns - Semana Anterior</div>
+            <div class="chart-wrapper">
+                <canvas id="prevWeekProblems"></canvas>
+            </div>
+        </div>
+        <div class="chart-section">
+            <div class="chart-title">Problemas Mais Comuns - Semana Atual</div>
+            <div class="chart-wrapper">
+                <canvas id="currentWeekProblems"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Chamados -->
+    <div class="table-section">
+        <div class="table-title">Chamados da Semana Atual</div>
+        <table id="ticketsTable">
+            <thead>
+                <tr>
+                    <th>Protocolo</th>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>Equipe</th>
+                    <th>Empresa</th>
+                </tr>
+            </thead>
+            <tbody id="ticketsBody">
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tooltip Modal para Detalhes de Atendimentos -->
+    <div id="attendanceModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000; max-width: 600px; max-height: 80vh; overflow-y: auto; padding: 20px;">
+        <button onclick="closeAttendanceModal()" style="position: absolute; top: 10px; right: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px; font-weight: bold;">×</button>
+        <h2 id="modalTitle" style="color: #1a3a52; margin-bottom: 15px;"></h2>
+        <div id="modalContent" style="display: grid; gap: 15px;"></div>
+    </div>
+
+    <!-- Overlay para fechar modal -->
+    <div id="attendanceOverlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999;" onclick="closeAttendanceModal()"></div>
+
+    <!-- Problemas e Soluções de Suporte -->
+    <div class="table-section">
+        <div class="table-title">🔧 Problemas e Soluções - Suporte (Semana Anterior: 3 | Semana Atual: 7)</div>
+        
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #1a3a52; margin-bottom: 15px; font-size: 16px; font-weight: 700;">Semana Anterior</h3>
+            <div id="prevWeekSupportProblems" style="display: grid; gap: 15px;">
+            </div>
+        </div>
+
+        <div>
+            <h3 style="color: #1a3a52; margin-bottom: 15px; font-size: 16px; font-weight: 700;">Semana Atual</h3>
+            <div id="currentWeekSupportProblems" style="display: grid; gap: 15px;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allData = [];
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const csvData = e.target.result;
+                const dashboard = new Dashboard();
+                const parsed = dashboard.parseCSV(csvData);
+                
+                // Processar datas
+                allData = parsed.map(row => ({
+                    ...row,
+                    'Data de abertura': parseDate(row['Data de abertura']),
+                    'Data de fechamento': row['Data de fechamento'] ? parseDate(row['Data de fechamento']) : null
+                }));
+                
+                console.log('Dados carregados:', allData.length, 'registros');
+                updateDashboard();
+            };
+            reader.readAsText(file);
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            
+            // Tenta formato DD/MM/YYYY ou DD/MM/YYYY, HH:MM:SS
+            const match = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (match) {
+                const [, day, month, year] = match;
+                return new Date(year, month - 1, day);
+            }
+            return null;
+        }
+
+        let customPrevWeekStart = null;
+        let customPrevWeekEnd = null;
+        let customCurrentWeekStart = null;
+        let customCurrentWeekEnd = null;
+        let prevWeekData = [];
+        let currentWeekData = [];
+
+        function updateDashboard() {
+            console.log('=== Atualizando Dashboard ===');
+            console.log('Total de dados:', allData.length);
+            
+            const now = new Date();
+            let currentWeekStart, prevWeekStart;
+
+            // Usar datas customizadas se definidas, senão usar semanas padrão
+            if (customPrevWeekStart && customPrevWeekEnd) {
+                prevWeekStart = customPrevWeekStart;
+            } else {
+                currentWeekStart = getWeekStart(now);
+                prevWeekStart = new Date(currentWeekStart);
+                prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+            }
+
+            if (customCurrentWeekStart && customCurrentWeekEnd) {
+                currentWeekStart = customCurrentWeekStart;
+            } else {
+                currentWeekStart = getWeekStart(now);
+            }
+
+            console.log('Semana anterior:', prevWeekStart.toLocaleDateString('pt-BR'));
+            console.log('Semana atual:', currentWeekStart.toLocaleDateString('pt-BR'));
+
+            // Renderizar calendários
+            renderCalendar('prevWeekDays', prevWeekStart);
+            renderCalendar('currentWeekDays', currentWeekStart);
+
+            // Filtrar dados por semana
+            const prevWeekEnd = customPrevWeekEnd || new Date(prevWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const currentWeekEnd = customCurrentWeekEnd || new Date(currentWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+            prevWeekData = filterByDateRange(allData, prevWeekStart, prevWeekEnd);
+            currentWeekData = filterByDateRange(allData, currentWeekStart, currentWeekEnd);
+
+            console.log('Dados semana anterior:', prevWeekData.length);
+            console.log('Dados semana atual:', currentWeekData.length);
+
+            // Atualizar títulos com datas
+            updateWeekTitles(prevWeekStart, prevWeekEnd, currentWeekStart, currentWeekEnd);
+
+            // Atualizar KPIs
+            updateKPIs('prevWeek', prevWeekData);
+            updateKPIs('currentWeek', currentWeekData);
+
+            // Atualizar gráficos
+            updateProblemsChart('prevWeekProblems', prevWeekData);
+            updateProblemsChart('currentWeekProblems', currentWeekData);
+
+            // Atualizar tabela
+            updateTicketsTable(currentWeekData);
+
+            // Atualizar problemas de suporte
+            updateSupportProblems(prevWeekData, currentWeekData);
+        }
+
+        function updateWeekTitles(prevStart, prevEnd, currStart, currEnd) {
+            const formatDate = (d) => d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            document.getElementById('prevWeekTitle').textContent = 
+                `${formatDate(prevStart)} a ${formatDate(prevEnd)}`;
+            document.getElementById('currentWeekTitle').textContent = 
+                `${formatDate(currStart)} a ${formatDate(currEnd)}`;
+        }
+
+        function applyCustomDates() {
+            const prevStart = document.getElementById('prevWeekStart').value;
+            const prevEnd = document.getElementById('prevWeekEnd').value;
+            const currStart = document.getElementById('currentWeekStart').value;
+            const currEnd = document.getElementById('currentWeekEnd').value;
+
+            if (!prevStart || !prevEnd || !currStart || !currEnd) {
+                alert('Por favor, preencha todas as datas!');
+                return;
+            }
+
+            customPrevWeekStart = new Date(prevStart + 'T00:00:00');
+            customPrevWeekEnd = new Date(prevEnd + 'T23:59:59');
+            customCurrentWeekStart = new Date(currStart + 'T00:00:00');
+            customCurrentWeekEnd = new Date(currEnd + 'T23:59:59');
+
+            updateDashboard();
+        }
+
+        function filterByDateRange(data, startDate, endDate) {
+            return data.filter(row => {
+                if (!row['Data de abertura']) return false;
+                const date = row['Data de abertura'];
+                return date >= startDate && date <= endDate;
+            });
+        }
+
+        function getWeekStart(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day;
+            return new Date(d.setDate(diff));
+        }
+
+        function renderCalendar(elementId, weekStart) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart);
+                date.setDate(date.getDate() + i);
+                
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.textContent = date.getDate();
+                
+                if (isToday(date)) {
+                    dayEl.classList.add('today');
+                }
+                
+                container.appendChild(dayEl);
+            }
+        }
+
+        function isToday(date) {
+            const today = new Date();
+            return date.getDate() === today.getDate() &&
+                   date.getMonth() === today.getMonth() &&
+                   date.getFullYear() === today.getFullYear();
+        }
+
+
+        function updateKPIs(prefix, weekData) {
+            console.log('Atualizando KPIs para', prefix, 'com', weekData.length, 'registros');
+            
+            const cs = weekData.filter(r => {
+                const equipe = (r['Equipe'] || r['Equpe'] || '').toLowerCase().trim();
+                return equipe === 'cs';
+            }).length;
+            
+            const support = weekData.filter(r => {
+                const equipe = (r['Equipe'] || r['Equpe'] || '').toLowerCase().trim();
+                return equipe === 'suporte';
+            }).length;
+            
+            const resolved = weekData.filter(r => {
+                const status = (r['Status'] || '').toLowerCase();
+                return status.includes('resolvido');
+            }).length;
+            
+            const open = weekData.filter(r => {
+                const status = (r['Status'] || '').toLowerCase();
+                return status.includes('atendimento');
+            }).length;
+
+            console.log('CS:', cs, 'Support:', support, 'Resolved:', resolved, 'Open:', open);
+
+            document.getElementById(prefix + 'CS').textContent = cs;
+            document.getElementById(prefix + 'Support').textContent = support;
+            document.getElementById(prefix + 'Resolved').textContent = resolved;
+            document.getElementById(prefix + 'Open').textContent = open;
+        }
+
+        function updateProblemsChart(canvasId, weekData) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            const problems = {};
+            weekData.forEach(row => {
+                const tipo = row['Tipo'] || 'Outro';
+                problems[tipo] = (problems[tipo] || 0) + 1;
+            });
+
+            const sorted = Object.entries(problems)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            if (window[canvasId + 'Chart']) {
+                window[canvasId + 'Chart'].destroy();
+            }
+
+            window[canvasId + 'Chart'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(p => p[0]),
+                    datasets: [{
+                        label: 'Quantidade',
+                        data: sorted.map(p => p[1]),
+                        backgroundColor: '#00d4ff',
+                        borderColor: '#1a3a52',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    return 'Clique para ver detalhes';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { beginAtZero: true }
+                    },
+                    onClick: function(event, elements) {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const type = sorted[index][0];
+                            showAttendanceDetailsModal(type, weekData);
+                        }
+                    }
+                }
+            });
+            
+            // Redimensionar gráfico após criação
+            setTimeout(() => {
+                window[canvasId + 'Chart'].resize();
+            }, 100);
+        }
+
+        function showAttendanceDetailsModal(type, weekData) {
+            const filteredData = weekData.filter(row => {
+                const rowType = (row['Tipo'] || '').toLowerCase().trim();
+                return rowType === type.toLowerCase();
+            });
+
+            const modal = document.getElementById('attendanceModal');
+            const overlay = document.getElementById('attendanceOverlay');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+
+            const typeEmoji = {
+                'atendimento': '📞',
+                'orientação': '💡',
+                'relacionamento': '🤝',
+                'reunião': '👥'
+            };
+
+            title.textContent = `${typeEmoji[type.toLowerCase()] || '📋'} ${type} (${filteredData.length})`;
+            content.innerHTML = '';
+
+            filteredData.forEach((row, index) => {
+                const card = document.createElement('div');
+                card.className = 'attendance-card';
+                card.style.cursor = 'pointer';
+                
+                const statusColor = (row['Status'] || '').toLowerCase().includes('resolvido') ? '#d4edda' : '#fff3cd';
+                const statusTextColor = (row['Status'] || '').toLowerCase().includes('resolvido') ? '#155724' : '#856404';
+                
+                card.innerHTML = `
+                    <div class="attendance-header">
+                        <span class="attendance-protocol">${row['Protocolo']}</span>
+                        <span class="attendance-type" style="background: ${statusColor}; color: ${statusTextColor};">${row['Status'] || 'N/A'}</span>
+                    </div>
+                    
+                    <div class="attendance-info">
+                        <div class="attendance-field">
+                            <div class="attendance-label">Empresa</div>
+                            <div class="attendance-value">${row['Empresa do cliente'] || 'N/A'}</div>
+                        </div>
+                        <div class="attendance-field">
+                            <div class="attendance-label">Responsável</div>
+                            <div class="attendance-value">${row['Técnico responsável'] || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="attendance-field">
+                        <div class="attendance-label">Status Detalhado</div>
+                        <div class="attendance-description">${row['status'] || 'Sem informação'}</div>
+                    </div>
+                    
+                    <div class="attendance-expand-section" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                        <div class="attendance-field">
+                            <div class="attendance-label">Descrição</div>
+                            <div class="attendance-description" style="background: #f0f0f0; padding: 10px; border-radius: 4px;">${row['Descrição'] || 'Não informada'}</div>
+                        </div>
+                        <div class="attendance-field" style="margin-top: 12px;">
+                            <div class="attendance-label">Real Problema</div>
+                            <div class="attendance-description" style="background: #f0f0f0; padding: 10px; border-radius: 4px;">${row['Real problema'] || 'Não informado'}</div>
+                        </div>
+                        <div class="attendance-field" style="margin-top: 12px;">
+                            <div class="attendance-label">Solução Aplicada</div>
+                            <div class="attendance-description" style="background: #f0f0f0; padding: 10px; border-radius: 4px;">${row['solução'] || 'Não informada'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="expand-toggle" style="text-align: center; margin-top: 10px; color: #00d4ff; font-size: 12px; font-weight: 600;">
+                        Clique para expandir detalhes
+                    </div>
+                `;
+                
+                content.appendChild(card);
+                
+                // Adicionar evento após adicionar ao DOM
+                card.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const expandSection = this.querySelector('.attendance-expand-section');
+                    const toggleText = this.querySelector('.expand-toggle');
+                    const isVisible = expandSection.style.display !== 'none';
+                    
+                    expandSection.style.display = isVisible ? 'none' : 'block';
+                    toggleText.textContent = `Clique para ${isVisible ? 'expandir' : 'recolher'} detalhes`;
+                });
+            });
+
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function closeAttendanceModal() {
+            document.getElementById('attendanceModal').style.display = 'none';
+            document.getElementById('attendanceOverlay').style.display = 'none';
+        }
+
+        function updateTicketsTable(weekData) {
+            const tbody = document.getElementById('ticketsBody');
+            tbody.innerHTML = '';
+
+            if (weekData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Nenhum chamado nesta semana</td></tr>';
+                return;
+            }
+
+            weekData.slice(0, 10).forEach(row => {
+                const tr = document.createElement('tr');
+                const status = (row['Status'] || '').toLowerCase();
+                const statusClass = status.includes('resolvido') ? 'status-resolvido' : 'status-atendimento';
+                const statusText = status.includes('resolvido') ? 'Resolvido' : 'Em Atendimento';
+
+                tr.innerHTML = `
+                    <td><strong>${row['Protocolo']}</strong></td>
+                    <td>${formatDate(row['Data de abertura'])}</td>
+                    <td>${row['Tipo']}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>${row['Equipe'] || row['Equpe'] || '-'}</td>
+                    <td>${row['Empresa do cliente'] || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function formatDate(date) {
+            if (!date) return '-';
+            if (typeof date === 'string') return date;
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function showKPIBreakdown(kpiId, weekData) {
+            const modal = document.getElementById('attendanceModal');
+            const overlay = document.getElementById('attendanceOverlay');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+
+            let filteredData = [];
+            let kpiLabel = '';
+
+            if (kpiId.includes('CS')) {
+                filteredData = weekData.filter(r => 
+                    (r['Equipe'] || r['Equpe'] || '').toLowerCase().trim() === 'cs'
+                );
+                kpiLabel = '📞 Chamados CS';
+            } else if (kpiId.includes('Support')) {
+                filteredData = weekData.filter(r => 
+                    (r['Equipe'] || r['Equpe'] || '').toLowerCase().trim() === 'suporte'
+                );
+                kpiLabel = '🔧 Chamados Suporte';
+            } else if (kpiId.includes('Resolved')) {
+                filteredData = weekData.filter(r => 
+                    (r['Status'] || '').toLowerCase().includes('resolvido')
+                );
+                kpiLabel = '✅ Resolvidos';
+            } else if (kpiId.includes('Open')) {
+                filteredData = weekData.filter(r => 
+                    (r['Status'] || '').toLowerCase().includes('atendimento')
+                );
+                kpiLabel = '⏳ Em Atendimento';
+            }
+
+            title.textContent = `${kpiLabel} (${filteredData.length})`;
+            content.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                content.innerHTML = '<p style="color: #999; text-align: center;">Nenhum chamado nesta categoria</p>';
+                modal.style.display = 'block';
+                overlay.style.display = 'block';
+                return;
+            }
+
+            const typeBreakdown = {};
+            filteredData.forEach(row => {
+                const tipo = (row['Tipo'] || 'Desconhecido').toLowerCase();
+                typeBreakdown[tipo] = (typeBreakdown[tipo] || 0) + 1;
+            });
+
+            const breakdownDiv = document.createElement('div');
+            breakdownDiv.className = 'breakdown-chart';
+            breakdownDiv.innerHTML = '<h3 style="color: #1a3a52; margin-bottom: 15px; font-size: 14px; font-weight: 700;">Distribuição por Tipo</h3>';
+
+            Object.entries(typeBreakdown).forEach(([tipo, count]) => {
+                const item = document.createElement('div');
+                item.className = 'breakdown-item';
+                item.innerHTML = `
+                    <div class="breakdown-label">${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</div>
+                    <div class="breakdown-count">${count}</div>
+                `;
+                breakdownDiv.appendChild(item);
+            });
+
+            content.appendChild(breakdownDiv);
+
+            const detailsDiv = document.createElement('div');
+            detailsDiv.innerHTML = '<h3 style="color: #1a3a52; margin-bottom: 15px; font-size: 14px; font-weight: 700;">Detalhes dos Chamados</h3>';
+            content.appendChild(detailsDiv);
+
+            filteredData.forEach((row, index) => {
+                const card = document.createElement('div');
+                card.className = 'attendance-card';
+                card.style.cursor = 'pointer';
+                
+                const statusColor = (row['Status'] || '').toLowerCase().includes('resolvido') ? '#d4edda' : '#fff3cd';
+                const statusTextColor = (row['Status'] || '').toLowerCase().includes('resolvido') ? '#155724' : '#856404';
+                
+                card.innerHTML = `
+                    <div class="attendance-header">
+                        <span class="attendance-protocol">${row['Protocolo']}</span>
+                        <span class="attendance-type" style="background: ${statusColor}; color: ${statusTextColor};">${row['Status'] || 'N/A'}</span>
+                    </div>
+                    
+                    <div class="attendance-info">
+                        <div class="attendance-field">
+                            <div class="attendance-label">Tipo</div>
+                            <div class="attendance-value">${row['Tipo'] || 'N/A'}</div>
+                        </div>
+                        <div class="attendance-field">
+                            <div class="attendance-label">Empresa</div>
+                            <div class="attendance-value">${row['Empresa do cliente'] || 'N/A'}</div>
+                        </div>
+                        <div class="attendance-field">
+                            <div class="attendance-label">Responsável</div>
+                            <div class="attendance-value">${row['Técnico responsável'] || 'N/A'}</div>
+                        </div>
+                        <div class="attendance-field">
+                            <div class="attendance-label">Data de Abertura</div>
+                            <div class="attendance-value">${formatDate(row['Data de abertura'])}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="attendance-expand-section" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                        <div class="attendance-field">
+                            <div class="attendance-label">Descrição</div>
+                            <div class="attendance-description" style="background: #f0f0f0; padding: 10px; border-radius: 4px;">${row['Descrição'] || 'Não informada'}</div>
+                        </div>
+                        <div class="attendance-field" style="margin-top: 12px;">
+                            <div class="attendance-label">Real Problema</div>
+                            <div class="attendance-description" style="background: #f0f0f0; padding: 10px; border-radius: 4px;">${row['Real problema'] || 'Não informado'}</div>
+                        </div>
+                        <div class="attendance-field" style="margin-top: 12px;">
+                            <div class="attendance-label">Solução Aplicada</div>
+                            <div class="attendance-description" style="background: #f0f0f0; padding: 10px; border-radius: 4px;">${row['solução'] || 'Não informada'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="expand-toggle" style="text-align: center; margin-top: 10px; color: #00d4ff; font-size: 12px; font-weight: 600;">
+                        Clique para expandir detalhes
+                    </div>
+                `;
+                
+                content.appendChild(card);
+                
+                // Adicionar evento após adicionar ao DOM
+                card.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const expandSection = this.querySelector('.attendance-expand-section');
+                    const toggleText = this.querySelector('.expand-toggle');
+                    const isVisible = expandSection.style.display !== 'none';
+                    
+                    expandSection.style.display = isVisible ? 'none' : 'block';
+                    toggleText.textContent = `Clique para ${isVisible ? 'expandir' : 'recolher'} detalhes`;
+                });
+            });
+
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function updateSupportProblems(prevWeekData, currentWeekData) {
+            const prevSupport = prevWeekData.filter(r => 
+                (r['Equipe'] || r['Equpe'] || '').toLowerCase().trim() === 'suporte'
+            );
+            const currentSupport = currentWeekData.filter(r => 
+                (r['Equipe'] || r['Equpe'] || '').toLowerCase().trim() === 'suporte'
+            );
+
+            renderSupportProblems('prevWeekSupportProblems', prevSupport);
+            renderSupportProblems('currentWeekSupportProblems', currentSupport);
+        }
+
+        function renderSupportProblems(elementId, supportData) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            if (supportData.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center;">Nenhum chamado de suporte neste período</p>';
+                return;
+            }
+
+            supportData.forEach(row => {
+                const status = (row['Status'] || '').toLowerCase();
+                const statusText = status.includes('resolvido') ? 'Resolvido' : 'Em Atendimento';
+                const statusColor = status.includes('resolvido') ? '#d4edda' : '#fff3cd';
+                const statusTextColor = status.includes('resolvido') ? '#155724' : '#856404';
+                
+                const realProblema = row['Real problema'] || 'Sem informação';
+                const solucao = row['solução'] || 'Sem informação';
+                
+                const card = document.createElement('div');
+                card.className = 'problem-card';
+                card.innerHTML = `
+                    <div class="problem-header">
+                        <span class="problem-protocol">${row['Protocolo']}</span>
+                        <span class="problem-status" style="background: ${statusColor}; color: ${statusTextColor};">${statusText}</span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="problem-section">
+                            <div class="problem-label">🔴 Real Problema</div>
+                            <div class="problem-text">${realProblema}</div>
+                        </div>
+                        
+                        <div class="problem-section">
+                            <div class="problem-label">✅ Solução</div>
+                            <div class="problem-text">${solucao}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="problem-company">
+                        <strong>Empresa:</strong> ${row['Empresa do cliente'] || 'N/A'} | 
+                        <strong>Tipo:</strong> ${row['Tipo'] || 'N/A'} | 
+                        <strong>Data:</strong> ${formatDate(row['Data de abertura'])}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Dashboard class (simplificado)
+        class Dashboard {
+            parseCSV(data) {
+                const delimiter = data.includes(';') ? ';' : ',';
+                const lines = data.split('\n');
+                
+                if (lines.length === 0) return [];
+                
+                const headers = lines[0].split(delimiter).map(h => h.trim());
+                const result = [];
+                let i = 1;
+
+                while (i < lines.length) {
+                    let line = lines[i].trim();
+                    
+                    if (!line) {
+                        i++;
+                        continue;
+                    }
+
+                    let quoteCount = (line.match(/"/g) || []).length;
+                    
+                    while (quoteCount % 2 !== 0 && i + 1 < lines.length) {
+                        i++;
+                        line += '\n' + lines[i];
+                        quoteCount = (line.match(/"/g) || []).length;
+                    }
+
+                    const values = this.parseCSVLine(line, delimiter);
+                    const obj = {};
+                    headers.forEach((header, index) => {
+                        obj[header] = values[index] || '';
+                    });
+                    result.push(obj);
+                    i++;
+                }
+
+                return result;
+            }
+
+            parseCSVLine(line, delimiter) {
+                const result = [];
+                let current = '';
+                let insideQuotes = false;
+
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+
+                    if (char === '"') {
+                        if (insideQuotes && line[i + 1] === '"') {
+                            current += '"';
+                            i++;
+                        } else {
+                            insideQuotes = !insideQuotes;
+                        }
+                    } else if (char === delimiter && !insideQuotes) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+
+                result.push(current.trim());
+                return result;
+            }
+        }
+
+        // Gerenciamento do Plano de Ação
+        const ActionPlanManager = {
+            defaultDates: {
+                prevWeek: '2026-06-23',
+                currentWeek: '2026-06-30'
+            },
+
+            defaultItems: {
+                currentWeek: [
+                    {
+                        id: 1,
+                        critical_point: 'HT: solicitação de plataforma offline',
+                        impact: 'Risco de interrupção em cenários de indisponibilidade',
+                        action_plan: 'Seguir com o processo de compra da solução offline. Resp.: Produto.',
+                        status: 'in_progress'
+                    },
+                    {
+                        id: 2,
+                        critical_point: 'HT: desconexão da plataforma',
+                        impact: 'Coleta interrompida e risco de inativação operacional',
+                        action_plan: 'Utilizar testes da nova programação em andamento com Lucas. Resp.: CS / Suporte.',
+                        status: 'in_progress'
+                    },
+                    {
+                        id: 3,
+                        critical_point: 'NPS',
+                        impact: 'Auditoria de indicador formal de percepção e satisfação do cliente',
+                        action_plan: 'Envio 01/07 às 09h. Resp.: CS',
+                        status: 'pending'
+                    },
+                    {
+                        id: 4,
+                        critical_point: 'Estoque: operas 02 unidades para garantia',
+                        impact: 'Risco de atraso no atendimento futuro e impacto no SLA de substituição',
+                        action_plan: 'Recompor estoque de backup para garantir continuidade operacional nas substituições em garantia. Resp.: Produto / Gestão.',
+                        status: 'pending'
+                    }
+                ],
+                prevWeek: []
+            },
+
+            loadDate(week) {
+                const storageKey = `actionPlanDate_${week}`;
+                const stored = localStorage.getItem(storageKey);
+                if (stored) {
+                    return stored;
+                }
+                return this.defaultDates[week] || '';
+            },
+
+            saveDate(week, date) {
+                const storageKey = `actionPlanDate_${week}`;
+                localStorage.setItem(storageKey, date);
+            },
+
+            updateDate(week, date) {
+                this.saveDate(week, date);
+            },
+
+            loadItems(week) {
+                const storageKey = `actionPlanItems_${week}`;
+                const stored = localStorage.getItem(storageKey);
+                if (stored) {
+                    return JSON.parse(stored);
+                }
+                return this.defaultItems[week] || [];
+            },
+
+            saveItems(week, items) {
+                const storageKey = `actionPlanItems_${week}`;
+                localStorage.setItem(storageKey, JSON.stringify(items));
+                this.render(week);
+            },
+
+            addItem(week) {
+                const items = this.loadItems(week);
+                items.push({
+                    id: Date.now(),
+                    critical_point: '',
+                    impact: '',
+                    action_plan: '',
+                    status: 'pending'
+                });
+                this.saveItems(week, items);
+            },
+
+            updateItem(week, id, field, value) {
+                const items = this.loadItems(week);
+                const item = items.find(i => i.id === id);
+                if (item) {
+                    item[field] = value;
+                    this.saveItems(week, items);
+                }
+            },
+
+            deleteItem(week, id) {
+                const items = this.loadItems(week).filter(i => i.id !== id);
+                this.saveItems(week, items);
+            },
+
+            cycleStatus(week, id) {
+                const items = this.loadItems(week);
+                const item = items.find(i => i.id === id);
+                if (item) {
+                    const statuses = ['pending', 'in_progress', 'completed'];
+                    const currentIndex = statuses.indexOf(item.status);
+                    item.status = statuses[(currentIndex + 1) % statuses.length];
+                    this.saveItems(week, items);
+                }
+            },
+
+            getStatusLabel(status) {
+                const labels = {
+                    'pending': 'Pendente',
+                    'in_progress': 'Em Andamento',
+                    'completed': 'Concluído'
+                };
+                return labels[status] || status;
+            },
+
+            getStatusClass(status) {
+                const classes = {
+                    'pending': 'status-pending',
+                    'in_progress': 'status-in-progress',
+                    'completed': 'status-completed'
+                };
+                return classes[status] || 'status-pending';
+            },
+
+            render(week) {
+                const items = this.loadItems(week);
+                const tbodyId = week === 'prevWeek' ? 'actionPlanTableBodyPrev' : 'actionPlanTableBodyCurrent';
+                const tbody = document.getElementById(tbodyId);
+
+                if (items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="action-plan-empty" style="padding: 15px;">Nenhum ponto adicionado</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = items.map(item => `
+                    <tr>
+                        <td ondblclick="ActionPlanManager.enableEdit(this, '${week}', ${item.id}, 'critical_point')">
+                            <div class="action-item-text" style="display: block; min-height: 60px; padding: 8px; cursor: pointer; white-space: normal; word-wrap: break-word; line-height: 1.5;">
+                                ${item.critical_point || '<em style="color: #999;">Clique 2x para editar</em>'}
+                            </div>
+                        </td>
+                        <td ondblclick="ActionPlanManager.enableEdit(this, '${week}', ${item.id}, 'impact')">
+                            <div class="action-item-text" style="display: block; min-height: 60px; padding: 8px; cursor: pointer; white-space: normal; word-wrap: break-word; line-height: 1.5;">
+                                ${item.impact || '<em style="color: #999;">Clique 2x para editar</em>'}
+                            </div>
+                        </td>
+                        <td ondblclick="ActionPlanManager.enableEdit(this, '${week}', ${item.id}, 'action_plan')">
+                            <div class="action-item-text" style="display: block; min-height: 60px; padding: 8px; cursor: pointer; white-space: normal; word-wrap: break-word; line-height: 1.5;">
+                                ${item.action_plan || '<em style="color: #999;">Clique 2x para editar</em>'}
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="status-badge ${this.getStatusClass(item.status)}" 
+                                  onclick="ActionPlanManager.cycleStatus('${week}', ${item.id})" 
+                                  title="Clique para mudar status">
+                                ${this.getStatusLabel(item.status)}
+                            </span>
+                            <button class="btn-delete-action" onclick="ActionPlanManager.deleteItem('${week}', ${item.id})" style="margin-left: 4px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            },
+
+            enableEdit(cell, week, id, field) {
+                const textDiv = cell.querySelector('.action-item-text');
+                const currentValue = textDiv.innerText.trim();
+                
+                const textarea = document.createElement('textarea');
+                textarea.className = 'action-item-input';
+                textarea.value = currentValue === 'Clique 2x para editar' ? '' : currentValue;
+                textarea.style.minHeight = '60px';
+                textarea.style.resize = 'vertical';
+                
+                cell.innerHTML = '';
+                cell.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                
+                const saveEdit = () => {
+                    const newValue = textarea.value.trim();
+                    this.updateItem(week, id, field, newValue);
+                    this.render(week);
+                };
+                
+                textarea.addEventListener('blur', saveEdit);
+                textarea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                        saveEdit();
+                    }
+                });
+            }
+        };
+
+        function addActionItem(week) {
+            ActionPlanManager.addItem(week);
+        }
+
+        // Inicializar o plano de ação ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carregar datas
+            document.getElementById('prevWeekDate').value = ActionPlanManager.loadDate('prevWeek');
+            document.getElementById('currentWeekDate').value = ActionPlanManager.loadDate('currentWeek');
+            
+            // Renderizar tabelas
+            ActionPlanManager.render('prevWeek');
+            ActionPlanManager.render('currentWeek');
+        });
+    </script>
+</body>
+</html>

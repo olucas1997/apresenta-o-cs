@@ -1,0 +1,100 @@
+================================================================================
+  DASHBOARD EXECUTIVO - INFANT.ID
+  Versão 1.0.0 | Julho 2026
+================================================================================
+
+🎯 COMECE AQUI EM 3 PASSOS:
+
+1️⃣  ABRA O ARQUIVO DE TESTE
+    → Clique com botão direito em: test.html
+    → Selecione: "Abrir com" → Seu navegador
+    
+2️⃣  CARREGUE SEUS DADOS
+    → Clique em: "📁 Carregar Arquivo CSV"
+    → Selecione: chamados_todos_inicio_a_2026-07-02.csv
+    
+3️⃣  PRONTO!
+    → Dashboard abre automaticamente com seus dados
+
+================================================================================
+
+📁 ARQUIVOS PRINCIPAIS:
+
+  test.html                              ← COMECE AQUI
+  index.html                             ← Dashboard principal
+  chamados_todos_inicio_a_2026-07-02.csv ← Seus dados
+  
+  styles.css                             ← Estilos
+  data-processor.js                      ← Processamento de dados
+  charts.js                              ← Gráficos
+  dashboard.js                           ← Lógica principal
+
+================================================================================
+
+📚 DOCUMENTAÇÃO:
+
+  GUIA_RAPIDO.md    ← Guia de uso rápido
+  INSTALACAO.md     ← Instruções detalhadas
+  README.md         ← Documentação completa
+  ARQUIVOS.md       ← Lista de todos os arquivos
+
+================================================================================
+
+🚀 ALTERNATIVAS:
+
+Se test.html não funcionar:
+  1. Clique com botão direito em index.html
+  2. Selecione "Abrir com" → Seu navegador
+  3. Clique em "Carregar" na barra superior
+  4. Selecione seu arquivo CSV
+
+Se tiver Python instalado:
+  1. Abra PowerShell/CMD nesta pasta
+  2. Digite: python -m http.server 8000
+  3. Acesse: http://localhost:8000
+
+================================================================================
+
+✅ CHECKLIST:
+
+  ☐ Abrir test.html no navegador
+  ☐ Carregar arquivo CSV
+  ☐ Ver dados no dashboard
+  ☐ Explorar filtros
+  ☐ Visualizar gráficos
+  ☐ Exportar PDF/Excel
+
+================================================================================
+
+⚠️  IMPORTANTE:
+
+  • Seu arquivo CSV deve ter delimitador: ; (ponto e vírgula)
+  • Datas no formato: DD/MM/YYYY ou DD/MM/YYYY, HH:MM:SS
+  • Coluna de equipe: "CS" ou "suporte"
+  • Data de fechamento: deixe vazia para chamados abertos
+
+================================================================================
+
+💡 DICAS:
+
+  • Use tema escuro para apresentações
+  • Exporte PDF para relatórios
+  • Use filtros para focar em dados específicos
+  • Atualize o arquivo CSV regularmente
+
+================================================================================
+
+📞 PRECISA DE AJUDA?
+
+  1. Leia GUIA_RAPIDO.md
+  2. Consulte INSTALACAO.md
+  3. Verifique README.md
+  4. Abra o console do navegador (F12) para erros
+
+================================================================================
+
+🎉 PRONTO PARA COMEÇAR?
+
+  Clique em test.html e aproveite seu novo dashboard!
+
+================================================================================
