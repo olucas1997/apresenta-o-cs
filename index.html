@@ -609,7 +609,7 @@
         <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
             <i class="fas fa-upload"></i> Carregar Planilha
         </button>
-        <input type="file" id="fileInput" accept=".csv" onchange="handleFileUpload(event)">
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
     </div>
 
     <!-- Plano de Ação — Pontos Críticos -->
@@ -850,34 +850,115 @@
             const file = event.target.files[0];
             if (!file) return;
 
+            console.log('Arquivo selecionado:', file.name);
+            const fileName = file.name.toLowerCase();
+            const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+            console.log('É Excel?', isExcel);
+
             const reader = new FileReader();
             reader.onload = (e) => {
-                const csvData = e.target.result;
-                const dashboard = new Dashboard();
-                const parsed = dashboard.parseCSV(csvData);
-                
-                // Processar datas
-                allData = parsed.map(row => ({
-                    ...row,
-                    'Data de abertura': parseDate(row['Data de abertura']),
-                    'Data de fechamento': row['Data de fechamento'] ? parseDate(row['Data de fechamento']) : null
-                }));
-                
-                console.log('Dados carregados:', allData.length, 'registros');
-                updateDashboard();
+                try {
+                    let parsed = [];
+
+                    if (isExcel) {
+                        // Processar arquivo Excel
+                        console.log('Processando como Excel...');
+                        const data = new Uint8Array(e.target.result);
+                        console.log('Tamanho do arquivo:', data.length);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        console.log('Abas disponíveis:', workbook.SheetNames);
+                        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                        parsed = XLSX.utils.sheet_to_json(worksheet);
+                        console.log('Registros parseados:', parsed.length);
+                    } else {
+                        // Processar arquivo CSV
+                        console.log('Processando como CSV...');
+                        const csvData = e.target.result;
+                        parsed = parseCSV(csvData);
+                    }
+
+                    if (parsed.length === 0) {
+                        alert('⚠️ Arquivo vazio ou sem dados.');
+                        return;
+                    }
+
+                    // Processar datas
+                    allData = parsed.map(row => ({
+                        ...row,
+                        'Data de abertura': parseDate(row['Data de abertura']),
+                        'Data de fechamento': row['Data de fechamento'] ? parseDate(row['Data de fechamento']) : null
+                    }));
+
+                    console.log('Dados carregados:', allData.length, 'registros');
+                    console.log('Colunas disponíveis:', Object.keys(parsed[0] || {}));
+                    console.log('Primeira linha:', parsed[0]);
+                    updateDashboard();
+                    alert('✅ Arquivo carregado com sucesso! ' + allData.length + ' registros.');
+                } catch (error) {
+                    console.error('Erro ao processar arquivo:', error);
+                    console.error('Stack:', error.stack);
+                    alert('❌ Erro ao carregar arquivo:\n\n' + error.message);
+                }
             };
-            reader.readAsText(file);
+
+            reader.onerror = (error) => {
+                console.error('Erro ao ler arquivo:', error);
+                alert('❌ Erro ao ler o arquivo.');
+            };
+
+            if (isExcel) {
+                reader.readAsArrayBuffer(file);
+            } else {
+                reader.readAsText(file);
+            }
+        }
+
+        function parseCSV(csvData) {
+            const lines = csvData.trim().split('\n');
+            if (lines.length === 0) return [];
+
+            const delimiter = csvData.includes(';') ? ';' : ',';
+            const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                const values = line.split(delimiter).map(v => v.trim().replace(/^"|"$/g, ''));
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header] = values[index] || '';
+                });
+                data.push(row);
+            }
+
+            return data;
         }
 
         function parseDate(dateStr) {
             if (!dateStr) return null;
             
+            // Converter para string se for número (Excel serializa datas como números)
+            const dateString = String(dateStr).trim();
+            
+            // Se for um número (serial do Excel), converter
+            if (!isNaN(dateString)) {
+                const excelDate = parseInt(dateString);
+                if (excelDate > 0) {
+                    // Excel começa em 1900-01-01
+                    const date = new Date((excelDate - 25569) * 86400 * 1000);
+                    return date;
+                }
+            }
+            
             // Tenta formato DD/MM/YYYY ou DD/MM/YYYY, HH:MM:SS
-            const match = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            const match = dateString.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
             if (match) {
                 const [, day, month, year] = match;
                 return new Date(year, month - 1, day);
             }
+            
             return null;
         }
 
