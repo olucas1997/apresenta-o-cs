@@ -939,15 +939,23 @@
         function parseDate(dateStr) {
             if (!dateStr) return null;
             
+            // Se já for uma data, retornar
+            if (dateStr instanceof Date) {
+                return dateStr;
+            }
+            
             // Converter para string se for número (Excel serializa datas como números)
             const dateString = String(dateStr).trim();
+            console.log('parseDate recebeu:', dateString, 'tipo:', typeof dateStr);
             
             // Se for um número (serial do Excel), converter
-            if (!isNaN(dateString)) {
-                const excelDate = parseInt(dateString);
+            if (!isNaN(dateString) && dateString !== '') {
+                const excelDate = parseFloat(dateString);
                 if (excelDate > 0) {
                     // Excel começa em 1900-01-01
-                    const date = new Date((excelDate - 25569) * 86400 * 1000);
+                    // Fórmula: new Date(1900, 0, excelDate - 1)
+                    const date = new Date(1900, 0, excelDate - 1);
+                    console.log('Data Excel parseada:', dateString, '→', date.toLocaleDateString('pt-BR'));
                     return date;
                 }
             }
@@ -956,9 +964,38 @@
             const match = dateString.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
             if (match) {
                 const [, day, month, year] = match;
-                return new Date(year, month - 1, day);
+                const date = new Date(year, month - 1, day);
+                console.log('Data string parseada:', dateString, '→', date.toLocaleDateString('pt-BR'));
+                return date;
             }
             
+            // Tenta formato "dia-da-semana, DD de mês de YYYY" (Excel em português - fallback)
+            const matchPT = dateString.match(/\d{1,2}\s+de\s+\w+\s+de\s+(\d{4})/);
+            if (matchPT) {
+                // Extrair dia, mês e ano
+                const parts = dateString.match(/(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/);
+                if (parts) {
+                    const day = parseInt(parts[1]);
+                    const monthName = parts[2].toLowerCase();
+                    const year = parseInt(parts[3]);
+                    
+                    const months = {
+                        'janeiro': 0, 'fevereiro': 1, 'março': 2, 'abril': 3,
+                        'maio': 4, 'junho': 5, 'julho': 6, 'agosto': 7,
+                        'setembro': 8, 'outubro': 9, 'novembro': 10, 'dezembro': 11
+                    };
+                    
+                    const month = months[monthName];
+                    if (month !== undefined) {
+                        // Criar data sem UTC para usar o fuso horário local
+                        const date = new Date(year, month, day);
+                        console.log('Data PT parseada:', dateString, '→', date.toLocaleDateString('pt-BR'));
+                        return date;
+                    }
+                }
+            }
+            
+            console.log('Data não parseada:', dateString);
             return null;
         }
 
@@ -1002,11 +1039,20 @@
             const prevWeekEnd = customPrevWeekEnd || new Date(prevWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
             const currentWeekEnd = customCurrentWeekEnd || new Date(currentWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
 
+            console.log('Intervalo semana anterior:', prevWeekStart, 'até', prevWeekEnd);
+            console.log('Intervalo semana atual:', currentWeekStart, 'até', currentWeekEnd);
+            
             prevWeekData = filterByDateRange(allData, prevWeekStart, prevWeekEnd);
             currentWeekData = filterByDateRange(allData, currentWeekStart, currentWeekEnd);
 
             console.log('Dados semana anterior:', prevWeekData.length);
             console.log('Dados semana atual:', currentWeekData.length);
+            
+            // DEBUG: mostrar todos os dados com suas datas
+            console.log('=== TODOS OS DADOS CARREGADOS ===');
+            allData.forEach(row => {
+                console.log('Protocolo:', row['Protocolo'], '- Data:', row['Data de abertura'], '- Status:', row['Status']);
+            });
 
             // Atualizar títulos com datas
             updateWeekTitles(prevWeekStart, prevWeekEnd, currentWeekStart, currentWeekEnd);
@@ -1054,17 +1100,26 @@
         }
 
         function filterByDateRange(data, startDate, endDate) {
-            return data.filter(row => {
+            console.log('Filtrando por data:', startDate, 'até', endDate);
+            const filtered = data.filter(row => {
                 if (!row['Data de abertura']) return false;
                 const date = row['Data de abertura'];
-                return date >= startDate && date <= endDate;
+                const matches = date >= startDate && date <= endDate;
+                if (!matches && row['Protocolo']) {
+                    console.log('Protocolo', row['Protocolo'], '- Data:', date, '- Fora do intervalo');
+                }
+                return matches;
             });
+            console.log('Registros após filtro:', filtered.length);
+            return filtered;
         }
 
         function getWeekStart(date) {
             const d = new Date(date);
             const day = d.getDay();
-            const diff = d.getDate() - day;
+            // Começa no domingo (0) ou segunda (1)?
+            // Se for segunda (1), volta para domingo (0)
+            const diff = d.getDate() - (day === 0 ? 0 : day - 1);
             return new Date(d.setDate(diff));
         }
 
